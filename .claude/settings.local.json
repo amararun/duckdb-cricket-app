@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm:*)",
+      "Bash(git init:*)",
+      "Bash(git push)",
+      "Bash(ssh -o StrictHostKeyChecking=no root@167.235.23.241 \"ls -la /data 2>/dev/null || echo ''/data does not exist''; ls -la / | grep -E ''data|mnt|vol|storage''\")",
+      "Bash(ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 167.235.23.241-root \"ls -la /\")",
+      "Bash(ssh 167.235.23.241-root \"ls -la /data\")",
+      "Bash(ssh 167.235.23.241-root \"ls -la /data/coolify\")",
+      "Bash(ssh 167.235.23.241-root \"ls -la /data/rexdb-datasets\")",
+      "Bash(ssh 167.235.23.241-root \"mkdir -p /data/duckdb-datasets && ls -la /data/\")",
+      "Bash(scp:*)",
+      "Bash(ssh 167.235.23.241-root \"ls -la /data/duckdb-datasets/\")",
+      "Bash(cat:*)",
+      "Bash(git rm:*)"
+    ]
+  }
+}
