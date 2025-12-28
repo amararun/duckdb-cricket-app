@@ -1,5 +1,5 @@
-const API_URL = import.meta.env.VITE_API_URL || 'https://duckdb-cricket-backend.tigzig.com';
-const API_KEY = import.meta.env.VITE_API_KEY || '';
+// API calls go through Vercel serverless function (no API key exposed in frontend)
+const API_BASE = '/api/duckdb';
 
 interface QueryResponse {
   columns: string[];
@@ -23,34 +23,33 @@ interface SchemaResponse {
   schema: SchemaColumn[];
 }
 
-async function fetchWithAuth(endpoint: string, options: RequestInit = {}) {
-  const response = await fetch(`${API_URL}${endpoint}`, {
+async function fetchApi(params: string, options: RequestInit = {}) {
+  const response = await fetch(`${API_BASE}?${params}`, {
     ...options,
     headers: {
-      'Authorization': `Bearer ${API_KEY}`,
       'Content-Type': 'application/json',
       ...options.headers,
     },
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: 'Unknown error' }));
-    throw new Error(error.detail || `HTTP ${response.status}`);
+    const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+    throw new Error(error.error || error.detail || `HTTP ${response.status}`);
   }
 
   return response.json();
 }
 
 export async function getTables(): Promise<TablesResponse> {
-  return fetchWithAuth('/api/v1/tables');
+  return fetchApi('action=tables');
 }
 
 export async function getSchema(tableName: string): Promise<SchemaResponse> {
-  return fetchWithAuth(`/api/v1/schema/${tableName}`);
+  return fetchApi(`action=schema&table=${encodeURIComponent(tableName)}`);
 }
 
 export async function executeQuery(sql: string, limit?: number): Promise<QueryResponse> {
-  return fetchWithAuth('/api/v1/query', {
+  return fetchApi('action=query', {
     method: 'POST',
     body: JSON.stringify({ sql, limit }),
   });

@@ -33,3 +33,6 @@ arc_reference_repo/
 
 # Temp files
 temp/
+
+.vercel
+.env*.local

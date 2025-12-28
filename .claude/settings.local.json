@@ -13,7 +13,12 @@
       "Bash(scp:*)",
       "Bash(ssh 167.235.23.241-root \"ls -la /data/duckdb-datasets/\")",
       "Bash(cat:*)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(vercel --version:*)",
+      "Bash(vercel link:*)",
+      "Bash(vercel env add:*)",
+      "Bash(vercel env pull:*)",
+      "Bash(vercel:*)"
     ]
   }
 }
