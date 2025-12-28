@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { executeQuery } from '../services/api'
-import { Loader2, ChevronUp, ChevronDown, Filter } from 'lucide-react'
+import { Loader2, ChevronUp, ChevronDown, Filter, Info, X } from 'lucide-react'
 
 interface BowlingStatsRow {
   bowler: string
@@ -42,6 +42,9 @@ export function BowlingStats() {
   // Pagination
   const [page, setPage] = useState(1)
   const rowsPerPage = 50
+
+  // Info modal
+  const [showInfo, setShowInfo] = useState(false)
 
   // Fetch teams for filter dropdown
   useEffect(() => {
@@ -201,8 +204,110 @@ export function BowlingStats() {
   return (
     <main className="flex-1 p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Page Title */}
-        <h1 className="text-2xl font-bold text-slate-800 mb-4">Bowling Statistics</h1>
+        {/* Page Title with Info Button */}
+        <div className="flex items-center gap-3 mb-4">
+          <h1 className="text-2xl font-bold text-slate-800">Bowling Statistics</h1>
+          <button
+            onClick={() => setShowInfo(true)}
+            className="p-1.5 rounded-full bg-indigo-100 hover:bg-indigo-200 text-indigo-700 transition-colors"
+            title="View metric definitions"
+          >
+            <Info className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Info Modal */}
+        {showInfo && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-indigo-50">
+                <h2 className="text-xl font-bold text-slate-800">Bowling Statistics - Metric Definitions</h2>
+                <button
+                  onClick={() => setShowInfo(false)}
+                  className="p-1 rounded hover:bg-indigo-100 text-slate-600 transition-colors"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+              <div className="px-6 py-4 overflow-y-auto max-h-[60vh]">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-slate-200">
+                      <th className="text-left py-2 text-base font-bold text-slate-800">Metric</th>
+                      <th className="text-left py-2 text-base font-bold text-slate-800">Definition</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-base text-slate-700">
+                    <tr className="border-b border-slate-100">
+                      <td className="py-3 font-semibold">Mat</td>
+                      <td className="py-3">Matches bowled in</td>
+                    </tr>
+                    <tr className="border-b border-slate-100">
+                      <td className="py-3 font-semibold">Overs</td>
+                      <td className="py-3">Total overs bowled (Balls / 6)</td>
+                    </tr>
+                    <tr className="border-b border-slate-100">
+                      <td className="py-3 font-semibold">Runs</td>
+                      <td className="py-3">Runs conceded = runs off bat + wides + no-balls. Excludes byes and leg-byes (not bowler's fault)</td>
+                    </tr>
+                    <tr className="border-b border-slate-100">
+                      <td className="py-3 font-semibold">Wkts</td>
+                      <td className="py-3">Wickets taken. Includes: caught, bowled, lbw, stumped, caught & bowled, hit wicket. Excludes: run outs</td>
+                    </tr>
+                    <tr className="border-b border-slate-100">
+                      <td className="py-3 font-semibold text-emerald-700">Econ</td>
+                      <td className="py-3"><strong>Economy Rate</strong> = Runs / Overs. Runs conceded per over. <em>Lower is better.</em></td>
+                    </tr>
+                    <tr className="border-b border-slate-100">
+                      <td className="py-3 font-semibold text-blue-700">Avg</td>
+                      <td className="py-3"><strong>Bowling Average</strong> = Runs / Wickets. Runs conceded per wicket. <em>Lower is better.</em></td>
+                    </tr>
+                    <tr className="border-b border-slate-100">
+                      <td className="py-3 font-semibold">SR</td>
+                      <td className="py-3"><strong>Strike Rate</strong> = Balls / Wickets. Balls bowled per wicket. <em>Lower is better.</em></td>
+                    </tr>
+                    <tr className="border-b border-slate-100">
+                      <td className="py-3 font-semibold">Dot%</td>
+                      <td className="py-3"><strong>Dot Ball Percentage</strong> = balls with 0 runs (no wides/no-balls). Measures pressure on batsmen.</td>
+                    </tr>
+                    <tr className="border-b border-slate-100">
+                      <td className="py-3 font-semibold">4s</td>
+                      <td className="py-3">Boundaries (fours) conceded</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 font-semibold">6s</td>
+                      <td className="py-3">Sixes conceded</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <div className="mt-6 p-4 bg-amber-50 rounded-lg border border-amber-200">
+                  <h3 className="font-bold text-slate-800 mb-2">Bowling vs Batting Metrics</h3>
+                  <p className="text-base text-slate-600">
+                    For bowlers, <strong>lower</strong> values are better for Economy, Average, and Strike Rate - opposite of batting!
+                  </p>
+                </div>
+
+                <div className="mt-4 p-4 bg-slate-50 rounded-lg">
+                  <h3 className="font-bold text-slate-800 mb-2">Data Notes</h3>
+                  <ul className="text-base text-slate-600 space-y-1">
+                    <li>Data covers ODI and T20 internationals from 2002-2025</li>
+                    <li>Ball-by-ball data with 2.6 million deliveries</li>
+                    <li>Use filters to narrow down by format, year range, or team</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="px-6 py-4 border-t border-slate-200 bg-slate-50">
+                <button
+                  onClick={() => setShowInfo(false)}
+                  className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Filters */}
         <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4 mb-6">
