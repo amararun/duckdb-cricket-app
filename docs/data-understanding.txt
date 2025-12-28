@@ -1,0 +1,258 @@
+================================================================================
+DATA UNDERSTANDING - odi_t20.duckdb
+================================================================================
+Last Updated: 2025-12-28
+
+================================================================================
+OVERVIEW
+================================================================================
+- Database: odi_t20.duckdb (~37MB)
+- Table: odi_t20
+- Total Rows: 2,640,368 (ball-by-ball data)
+- Each row represents ONE DELIVERY (ball) in a cricket match
+- Match Types: ODI (1,592,012 rows) + T20 (1,048,356 rows)
+- Date Range: 2002-12-29 to 2025-09-18
+- Unique Matches: 7,637
+- Top Teams by matches: India (1008), England (927), Australia (922), Pakistan (897)
+
+================================================================================
+COLUMN DEFINITIONS
+================================================================================
+match_type        VARCHAR   - "ODI" or "T20"
+match_id          BIGINT    - Unique match identifier
+season            VARCHAR   - Season format varies: "2016", "2016/17", "2004/05"
+start_date        DATE      - Match date (YYYY-MM-DD)
+venue             VARCHAR   - Ground name (e.g., "Sydney Cricket Ground")
+innings           BIGINT    - 1 or 2 (first or second innings)
+ball              DOUBLE    - Over.ball format (e.g., 11.4 = 12th over, 4th ball)
+batting_team      VARCHAR   - Team batting (e.g., "India", "Australia")
+bowling_team      VARCHAR   - Team bowling
+striker           VARCHAR   - Batsman facing the ball
+non_striker       VARCHAR   - Batsman at non-striker end
+bowler            VARCHAR   - Bowler delivering the ball
+runs_off_bat      BIGINT    - Runs scored by batsman (0, 1, 2, 3, 4, 6)
+extras            BIGINT    - Total extras on this ball
+wides             BIGINT    - Wide runs (0 or 1+)
+noballs           BIGINT    - No-ball runs (0 or 1)
+byes              BIGINT    - Bye runs
+legbyes           BIGINT    - Leg-bye runs
+penalty           BIGINT    - Penalty runs (rare)
+wicket_type       VARCHAR   - Type of dismissal (NULL if no wicket)
+                              Values: caught, bowled, lbw, run out, stumped,
+                                      caught and bowled, hit wicket, retired hurt
+player_dismissed  VARCHAR   - Name of dismissed batsman (NULL if no wicket)
+other_wicket_type VARCHAR   - For double dismissals (rare, usually NULL)
+other_player_dismissed VARCHAR - Second dismissed player (rare, usually NULL)
+
+================================================================================
+KEY DATA PATTERNS
+================================================================================
+1. Ball Numbering:
+   - Format: over.ball (e.g., 0.1, 0.2, ... 0.6, 1.1, 1.2...)
+   - Legal deliveries: .1 to .6 per over
+   - Extras (wides/no-balls) can extend an over
+
+2. Season Format:
+   - Calendar year: "2016", "2017"
+   - Split season: "2016/17", "2004/05" (southern hemisphere)
+
+3. Runs:
+   - runs_off_bat: Only what batsman scored (0-6)
+   - extras: Separately tracked (wides, noballs, byes, legbyes)
+   - Total runs per ball = runs_off_bat + extras
+
+4. Wickets:
+   - Most balls have NULL wicket_type (no dismissal)
+   - When wicket falls: wicket_type + player_dismissed are populated
+   - Common types: caught, bowled, lbw, run out, stumped
+
+5. Teams Included:
+   - Major nations: India, England, Australia, Pakistan, Sri Lanka,
+                    South Africa, New Zealand, West Indies, Bangladesh, Zimbabwe
+   - Associates: USA, Hong Kong, Papua New Guinea, Ireland, Scotland, etc.
+
+================================================================================
+SAMPLE ROWS (20 Random)
+================================================================================
+Row 1:
+  match_type: ODI | match_id: 1007651 | season: 2016 | start_date: 2016-06-13
+  venue: Harare Sports Club | innings: 1 | ball: 0.2
+  batting_team: Zimbabwe | bowling_team: India
+  striker: H Masakadza | non_striker: CJ Chibhabha | bowler: BB Sran
+  runs_off_bat: 0 | extras: 0 | wicket: None
+
+Row 2:
+  match_type: ODI | match_id: 1022353 | season: 2017 | start_date: 2017-06-04
+  venue: Edgbaston | innings: 1 | ball: 11.4
+  batting_team: India | bowling_team: Pakistan
+  striker: RG Sharma | non_striker: S Dhawan | bowler: Imad Wasim
+  runs_off_bat: 0 | extras: 0 | wicket: None
+
+Row 3:
+  match_type: ODI | match_id: 1022359 | season: 2017 | start_date: 2017-06-07
+  venue: Edgbaston | innings: 2 | ball: 2.6
+  batting_team: Pakistan | bowling_team: South Africa
+  striker: Fakhar Zaman | non_striker: Azhar Ali | bowler: K Rabada
+  runs_off_bat: 1 | extras: 0 | wicket: None
+
+Row 4:
+  match_type: ODI | match_id: 1022365 | season: 2017 | start_date: 2017-06-10
+  venue: Edgbaston | innings: 1 | ball: 26.1
+  batting_team: Australia | bowling_team: England
+  striker: SPD Smith | non_striker: MC Henriques | bowler: LE Plunkett
+  runs_off_bat: 0 | extras: 0 | wicket: None
+
+Row 5:
+  match_type: ODI | match_id: 1026851 | season: 2016/17 | start_date: 2016-11-08
+  venue: Mission Road Ground, Mong Kok | innings: 1 | ball: 23.4
+  batting_team: Papua New Guinea | bowling_team: Hong Kong
+  striker: S Bau | non_striker: D Bau | bowler: Ehsan Khan
+  runs_off_bat: 0 | extras: 0 | wicket: None
+
+Row 6:
+  match_type: ODI | match_id: 65661 | season: 2004/05 | start_date: 2005-01-23
+  venue: Sydney Cricket Ground | innings: 1 | ball: 22.4
+  batting_team: Pakistan | bowling_team: Australia
+  striker: Abdul Razzaq | non_striker: Inzamam-ul-Haq | bowler: SR Watson
+  runs_off_bat: 4 | extras: 0 | wicket: None
+
+Row 7:
+  match_type: ODI | match_id: 65714 | season: 2004 | start_date: 2004-07-23
+  venue: R.Premadasa Stadium | innings: 1 | ball: 37.3
+  batting_team: Bangladesh | bowling_team: Sri Lanka
+  striker: Manjural Islam Rana | non_striker: Mohammad Ashraful | bowler: ST Jayasuriya
+  runs_off_bat: 0 | extras: 0 | wicket: None
+
+Row 8:
+  match_type: ODI | match_id: 657645 | season: 2013/14 | start_date: 2013-12-27
+  venue: Sheikh Zayed Stadium | innings: 1 | ball: 0.3
+  batting_team: Pakistan | bowling_team: Sri Lanka
+  striker: Ahmed Shehzad | non_striker: Sharjeel Khan | bowler: AD Mathews
+  runs_off_bat: 0 | extras: 0 | wicket: None
+
+Row 9:
+  match_type: ODI | match_id: 65809 | season: 2002/03 | start_date: 2003-04-10
+  venue: Sharjah Cricket Association Stadium | innings: 2 | ball: 5.4
+  batting_team: Pakistan | bowling_team: Zimbabwe
+  striker: Taufeeq Umar | non_striker: Faisal Iqbal | bowler: AM Blignaut
+  runs_off_bat: 0 | extras: 0 | wicket: None
+
+Row 10:
+  match_type: ODI | match_id: 659551 | season: 2013 | start_date: 2013-08-29
+  venue: Harare Sports Club | innings: 2 | ball: 39.5
+  batting_team: Zimbabwe | bowling_team: Pakistan
+  striker: T Panyangara | non_striker: P Utseya | bowler: Junaid Khan
+  runs_off_bat: 0 | extras: 0 | wicket: None
+
+Row 11:
+  match_type: ODI | match_id: 66197 | season: 2004 | start_date: 2004-09-10
+  venue: Kennington Oval | innings: 2 | ball: 1.2
+  batting_team: United States of America | bowling_team: New Zealand
+  striker: RP Alexander | non_striker: MR Johnson | bowler: JDP Oram
+  runs_off_bat: 1 | extras: 0 | wicket: None
+
+Row 12:
+  match_type: ODI | match_id: 66295 | season: 2003 | start_date: 2003-06-29
+  venue: St Lawrence Ground, Canterbury | innings: 2 | ball: 34.2
+  batting_team: Zimbabwe | bowling_team: South Africa
+  striker: S Matsikenyeri | non_striker: GW Flower | bowler: M Ntini
+  runs_off_bat: 0 | extras: 0 | wicket: None
+
+Row 13:
+  match_type: ODI | match_id: 66357 | season: 2003 | start_date: 2003-05-10
+  venue: Rangiri Dambulla International Stadium | innings: 2 | ball: 3.5
+  batting_team: Sri Lanka | bowling_team: Pakistan
+  striker: KC Sangakkara | non_striker: MS Atapattu | bowler: Mohammad Sami
+  runs_off_bat: 0 | extras: 0 | wicket: None
+
+Row 14:
+  match_type: ODI | match_id: 66377 | season: 2004 | start_date: 2004-09-04
+  venue: Lord's | innings: 2 | ball: 23.6
+  batting_team: Pakistan | bowling_team: Australia
+  striker: Yousuf Youhana | non_striker: Inzamam-ul-Haq | bowler: DS Lehmann
+  runs_off_bat: 0 | extras: 0 | wicket: None
+
+Row 15:
+  match_type: ODI | match_id: 66378 | season: 2004/05 | start_date: 2004-09-30
+  venue: Multan Cricket Stadium | innings: 1 | ball: 45.4
+  batting_team: Pakistan | bowling_team: Zimbabwe
+  striker: Shahid Afridi | non_striker: Abdul Razzaq | bowler: E Chigumbura
+  runs_off_bat: 1 | extras: 0 | wicket: None
+
+Row 16:
+  match_type: ODI | match_id: 667645 | season: 2013/14 | start_date: 2014-01-25
+  venue: Eden Park | innings: 1 | ball: 26.2
+  batting_team: New Zealand | bowling_team: India
+  striker: MJ Guptill | non_striker: KS Williamson | bowler: VR Aaron
+  runs_off_bat: 0 | extras: 0 | wicket: None
+
+Row 17:
+  match_type: ODI | match_id: 667723 | season: 2014 | start_date: 2014-08-27
+  venue: Sophia Gardens | innings: 2 | ball: 25.2
+  batting_team: England | bowling_team: India
+  striker: BA Stokes | non_striker: EJG Morgan | bowler: R Ashwin
+  runs_off_bat: 4 | extras: 0 | wicket: None
+
+Row 18:
+  match_type: ODI | match_id: 667729 | season: 2014 | start_date: 2014-09-05
+  venue: Headingley | innings: 2 | ball: 31.2
+  batting_team: India | bowling_team: England
+  striker: MS Dhoni | non_striker: RA Jadeja | bowler: JC Tredwell
+  runs_off_bat: 6 | extras: 0 | wicket: None
+
+Row 19:
+  match_type: ODI | match_id: 667893 | season: 2014 | start_date: 2014-05-28
+  venue: Old Trafford | innings: 1 | ball: 21.1
+  batting_team: Sri Lanka | bowling_team: England
+  striker: KMDN Kulasekara | non_striker: SMA Priyanjan | bowler: CJ Jordan
+  runs_off_bat: 0 | extras: 0 | wicket: None
+
+Row 20:
+  match_type: ODI | match_id: 668511 | season: 2013/14 | start_date: 2013-10-26
+  venue: Senwes Park | innings: 2 | ball: 18.5
+  batting_team: Sri Lanka | bowling_team: South Africa
+  striker: CR Seneviratna | non_striker: HASD Siriwardene | bowler: S Loubser
+  runs_off_bat: 0 | extras: 0 | wicket: None
+
+================================================================================
+USEFUL QUERIES
+================================================================================
+
+-- Total rows
+SELECT COUNT(*) FROM odi_t20;
+
+-- Match type breakdown
+SELECT match_type, COUNT(*) FROM odi_t20 GROUP BY match_type;
+
+-- Top batsmen by balls faced
+SELECT striker, COUNT(*) as balls_faced
+FROM odi_t20
+GROUP BY striker
+ORDER BY balls_faced DESC
+LIMIT 10;
+
+-- Top bowlers by balls bowled
+SELECT bowler, COUNT(*) as balls_bowled
+FROM odi_t20
+GROUP BY bowler
+ORDER BY balls_bowled DESC
+LIMIT 10;
+
+-- Matches per year
+SELECT EXTRACT(YEAR FROM start_date) as year, COUNT(DISTINCT match_id) as matches
+FROM odi_t20
+GROUP BY year
+ORDER BY year;
+
+-- Wicket types distribution
+SELECT wicket_type, COUNT(*) as count
+FROM odi_t20
+WHERE wicket_type IS NOT NULL
+GROUP BY wicket_type
+ORDER BY count DESC;
+
+================================================================================
+INSIGHTS LOG
+================================================================================
+[Add new insights here as we discover them]
+

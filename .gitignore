@@ -34,5 +34,12 @@ arc_reference_repo/
 # Temp files
 temp/
 
+# Local DuckDB data files (downloaded from server)
+data/
+*.duckdb
+
+# Temporary exploration scripts
+explore.py
+
 .vercel
 .env*.local

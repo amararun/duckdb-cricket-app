@@ -5,6 +5,7 @@ import { Dashboard } from './pages/Dashboard'
 import { Players } from './pages/Players'
 import { Matches } from './pages/Matches'
 import { Schema } from './pages/Schema'
+import { BattingStats } from './pages/BattingStats'
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/schema" element={<Schema />} />
+        <Route path="/batting" element={<BattingStats />} />
         <Route path="/players" element={<Players />} />
         <Route path="/matches" element={<Matches />} />
       </Routes>

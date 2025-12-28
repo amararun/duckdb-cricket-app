@@ -41,16 +41,18 @@ export default defineConfig(({ mode }) => {
         // Simple test endpoint for local dev
         '/api/test': {
           target: 'http://localhost:4200',
-          bypass: (req, res) => {
-            res.writeHead(200, { 'Content-Type': 'application/json' })
-            res.end(JSON.stringify({
-              message: 'Test API route works! (local dev)',
-              timestamp: new Date().toISOString(),
-              envCheck: {
-                backendUrl: backendUrl ? 'configured' : 'missing',
-                apiKey: apiKey ? 'configured' : 'missing'
-              }
-            }))
+          bypass: (_req, res) => {
+            if (res) {
+              res.writeHead(200, { 'Content-Type': 'application/json' })
+              res.end(JSON.stringify({
+                message: 'Test API route works! (local dev)',
+                timestamp: new Date().toISOString(),
+                envCheck: {
+                  backendUrl: backendUrl ? 'configured' : 'missing',
+                  apiKey: apiKey ? 'configured' : 'missing'
+                }
+              }))
+            }
             return false
           }
         }
