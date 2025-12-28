@@ -12,6 +12,14 @@ function setCors(res: VercelResponse) {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  console.log('=== DUCKDB API HIT ===')
+  console.log('URL:', req.url)
+  console.log('Method:', req.method)
+  console.log('Query:', JSON.stringify(req.query))
+  console.log('BACKEND_URL:', BACKEND_URL)
+  console.log('API_KEY exists:', !!BACKEND_API_KEY)
+  console.log('======================')
+
   // Handle CORS preflight
   setCors(res)
   if (req.method === 'OPTIONS') {
@@ -27,7 +35,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (!BACKEND_API_KEY) {
     console.error('DUCKDB_BACKEND_API_KEY not configured')
-    return res.status(500).json({ error: 'Server configuration error' })
+    return res.status(500).json({ error: 'Server configuration error', debug: { backendUrl: BACKEND_URL } })
   }
 
   try {
