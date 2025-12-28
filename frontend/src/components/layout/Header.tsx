@@ -41,6 +41,16 @@ export function Header() {
             Batting
           </Link>
           <Link
+            to="/bowling"
+            className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+              isActive('/bowling')
+                ? 'bg-indigo-700 text-white'
+                : 'text-indigo-200 hover:bg-indigo-800 hover:text-white'
+            }`}
+          >
+            Bowling
+          </Link>
+          <Link
             to="/schema"
             className={`px-3 py-1 rounded-md text-sm font-medium transition-colors flex items-center gap-1 ${
               isActive('/schema')
