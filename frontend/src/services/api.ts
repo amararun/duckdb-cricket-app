@@ -67,6 +67,7 @@ export interface AdminFile {
   size_mb: number;
   row_count: number;
   tables: string[];
+  table_row_counts: Record<string, number>;
   updated_at: string;
 }
 
@@ -115,4 +116,32 @@ export async function refreshAdminFileMetadata(filename: string): Promise<{ mess
 
 export function getAdminFileDownloadUrl(filename: string): string {
   return `${API_BASE}?action=admin-download&filename=${encodeURIComponent(filename)}`;
+}
+
+// ============== Table-level operations ==============
+
+export async function renameAdminTable(
+  filename: string,
+  tableName: string,
+  newTableName: string
+): Promise<{ message: string; new_table_name: string }> {
+  return fetchApi(
+    `action=admin-table-rename&filename=${encodeURIComponent(filename)}&table=${encodeURIComponent(tableName)}`,
+    {
+      method: 'PUT',
+      body: JSON.stringify({ new_table_name: newTableName }),
+    }
+  );
+}
+
+export async function deleteAdminTable(
+  filename: string,
+  tableName: string
+): Promise<{ message: string; deleted_rows: number }> {
+  return fetchApi(
+    `action=admin-table-delete&filename=${encodeURIComponent(filename)}&table=${encodeURIComponent(tableName)}`,
+    {
+      method: 'DELETE',
+    }
+  );
 }

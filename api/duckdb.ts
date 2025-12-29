@@ -139,6 +139,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.send(Buffer.from(arrayBuffer))
       }
 
+      // ============== Table-level operations ==============
+      case 'admin-table-rename': {
+        if (req.method !== 'PUT') {
+          return res.status(405).json({ error: 'PUT required' })
+        }
+        const tableRenameFile = req.query.filename as string
+        const tableRenameTable = req.query.table as string
+        if (!tableRenameFile || !tableRenameTable) {
+          return res.status(400).json({ error: 'Missing filename or table parameter' })
+        }
+        backendUrl = `${BACKEND_URL}/api/v1/admin/files/${encodeURIComponent(tableRenameFile)}/tables/${encodeURIComponent(tableRenameTable)}/rename`
+        method = 'PUT'
+        body = JSON.stringify(req.body)
+        break
+      }
+
+      case 'admin-table-delete': {
+        if (req.method !== 'DELETE') {
+          return res.status(405).json({ error: 'DELETE required' })
+        }
+        const tableDeleteFile = req.query.filename as string
+        const tableDeleteTable = req.query.table as string
+        if (!tableDeleteFile || !tableDeleteTable) {
+          return res.status(400).json({ error: 'Missing filename or table parameter' })
+        }
+        backendUrl = `${BACKEND_URL}/api/v1/admin/files/${encodeURIComponent(tableDeleteFile)}/tables/${encodeURIComponent(tableDeleteTable)}`
+        method = 'DELETE'
+        break
+      }
+
       default:
         return res.status(400).json({ error: `Unknown action: ${action}` })
     }

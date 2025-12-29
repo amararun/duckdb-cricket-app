@@ -35,6 +35,10 @@ export default defineConfig(({ mode }) => {
             if (action === 'admin-rename' && filename) return `/api/v1/admin/files/${filename}/rename`
             if (action === 'admin-refresh' && filename) return `/api/v1/admin/files/${filename}/refresh-metadata`
             if (action === 'admin-download' && filename) return `/api/v1/admin/files/${filename}/download`
+            // Table-level operations
+            const tableName = url.searchParams.get('table')
+            if (action === 'admin-table-rename' && filename && tableName) return `/api/v1/admin/files/${filename}/tables/${tableName}/rename`
+            if (action === 'admin-table-delete' && filename && tableName) return `/api/v1/admin/files/${filename}/tables/${tableName}`
             return path
           },
           configure: (proxy) => {
