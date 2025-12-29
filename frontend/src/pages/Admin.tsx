@@ -76,6 +76,28 @@ export function Admin() {
     fetchFiles()
   }, [])
 
+  // Escape key handler to close all modals
+  useEffect(() => {
+    function handleEscape(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        if (previewData) {
+          setPreviewData(null)
+          setPreviewTableFilter(null)
+        } else if (renameFile) {
+          setRenameFile(null)
+        } else if (deleteConfirm) {
+          setDeleteConfirm(null)
+        } else if (renameTableInfo) {
+          setRenameTableInfo(null)
+        } else if (deleteTableInfo) {
+          setDeleteTableInfo(null)
+        }
+      }
+    }
+    window.addEventListener('keydown', handleEscape)
+    return () => window.removeEventListener('keydown', handleEscape)
+  }, [previewData, renameFile, deleteConfirm, renameTableInfo, deleteTableInfo])
+
   function toggleExpand(filename: string) {
     setExpandedFiles(prev => {
       const next = new Set(prev)
