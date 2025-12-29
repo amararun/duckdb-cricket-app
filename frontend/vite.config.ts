@@ -23,10 +23,18 @@ export default defineConfig(({ mode }) => {
             const url = new URL(path, 'http://localhost')
             const action = url.searchParams.get('action')
             const table = url.searchParams.get('table')
+            const filename = url.searchParams.get('filename')
 
             if (action === 'tables') return '/api/v1/tables'
             if (action === 'schema' && table) return `/api/v1/schema/${table}`
             if (action === 'query') return '/api/v1/query'
+            // Admin endpoints
+            if (action === 'admin-files') return '/api/v1/admin/files'
+            if (action === 'admin-preview' && filename) return `/api/v1/admin/files/${filename}/preview`
+            if (action === 'admin-delete' && filename) return `/api/v1/admin/files/${filename}`
+            if (action === 'admin-rename' && filename) return `/api/v1/admin/files/${filename}/rename`
+            if (action === 'admin-refresh' && filename) return `/api/v1/admin/files/${filename}/refresh-metadata`
+            if (action === 'admin-download' && filename) return `/api/v1/admin/files/${filename}/download`
             return path
           },
           configure: (proxy) => {

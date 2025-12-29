@@ -7,6 +7,7 @@ import { Matches } from './pages/Matches'
 import { Schema } from './pages/Schema'
 import { BattingStats } from './pages/BattingStats'
 import { BowlingStats } from './pages/BowlingStats'
+import { Admin } from './pages/Admin'
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/bowling" element={<BowlingStats />} />
         <Route path="/players" element={<Players />} />
         <Route path="/matches" element={<Matches />} />
+        <Route path="/admin" element={<Admin />} />
       </Routes>
       <Footer />
     </div>
