@@ -1,4 +1,12 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  UserButton,
+  useClerk,
+  useUser
+} from '@clerk/clerk-react'
 import {
   getAdminFiles,
   getAdminFilePreview,
@@ -27,10 +35,24 @@ import {
   Clock,
   ChevronDown,
   ChevronRight,
-  Upload
+  Upload,
+  LogIn,
+  LogOut,
+  Shield
 } from 'lucide-react'
 
+// Access is controlled via Clerk Dashboard:
+// 1. Go to Clerk Dashboard → Users → Select user
+// 2. Scroll to "User metadata" → Edit "Public"
+// 3. Add: { "role": "admin" }
+// 4. Save - user now has admin access
+
 export function Admin() {
+  const { signOut } = useClerk()
+  const { user, isLoaded } = useUser()
+
+  // Check if user has admin role in their publicMetadata (set via Clerk Dashboard)
+  const isAdmin = user?.publicMetadata?.role === 'admin'
   const [files, setFiles] = useState<AdminFile[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -219,9 +241,15 @@ export function Admin() {
     }
   }
 
+  const MAX_FILE_SIZE = 100 * 1024 * 1024 // 100MB limit for practical uploads
+
   function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (file) {
+      if (file.size > MAX_FILE_SIZE) {
+        setError(`File too large (${(file.size / (1024 * 1024)).toFixed(1)} MB). Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)} MB.`)
+        return
+      }
       setUploadFile(file)
       // Pre-fill custom name from filename (without extension)
       const nameWithoutExt = file.name.replace(/\.duckdb$/i, '')
@@ -252,7 +280,69 @@ export function Admin() {
 
   return (
     <main className="flex-1 p-6">
+      {/* Sign-in required message for unauthenticated users */}
+      <SignedOut>
+        <div className="max-w-md mx-auto mt-20">
+          <div className="bg-white rounded-lg shadow-lg border border-slate-200 p-8 text-center">
+            <Shield className="h-16 w-16 text-indigo-600 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-slate-800 mb-2">Admin Access Required</h1>
+            <p className="text-slate-600 mb-6">
+              Please sign in to access the Admin file management area.
+            </p>
+            <SignInButton mode="modal">
+              <button className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors mx-auto font-medium">
+                <LogIn className="h-5 w-5" />
+                Sign In
+              </button>
+            </SignInButton>
+          </div>
+        </div>
+      </SignedOut>
+
+      {/* Admin content for authenticated users */}
+      <SignedIn>
+      {/* Check if user has admin role (set via Clerk Dashboard → User → Public Metadata) */}
+      {isLoaded && user && !isAdmin ? (
+        // Unauthorized user - show access denied
+        <div className="max-w-md mx-auto mt-20">
+          <div className="bg-white rounded-lg shadow-lg border border-red-200 p-8 text-center">
+            <Shield className="h-16 w-16 text-red-500 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-slate-800 mb-2">Access Denied</h1>
+            <p className="text-slate-600 mb-2">
+              You are signed in as:
+            </p>
+            <p className="font-medium text-slate-800 mb-4">
+              {user.primaryEmailAddress?.emailAddress}
+            </p>
+            <p className="text-slate-600 mb-6">
+              This email is not authorized to access the Admin area. Please contact the administrator if you believe this is an error.
+            </p>
+            <button
+              onClick={() => signOut({ redirectUrl: '/admin' })}
+              className="flex items-center gap-2 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors mx-auto font-medium"
+            >
+              <LogOut className="h-5 w-5" />
+              Sign Out
+            </button>
+          </div>
+        </div>
+      ) : (
       <div className="max-w-6xl mx-auto">
+        {/* User info bar */}
+        <div className="flex items-center justify-end gap-3 mb-4 text-sm">
+          <span className="text-slate-600">
+            Signed in as <span className="font-medium text-slate-800">{user?.primaryEmailAddress?.emailAddress}</span>
+          </span>
+          <UserButton afterSignOutUrl="/admin" />
+          <button
+            onClick={() => signOut({ redirectUrl: '/admin' })}
+            className="flex items-center gap-1 px-3 py-1.5 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+          >
+            <LogOut className="h-4 w-4" />
+            Sign Out
+          </button>
+        </div>
+
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
@@ -316,10 +406,9 @@ export function Admin() {
                   const hasTables = file.tables && file.tables.length > 0
 
                   return (
-                    <>
+                    <React.Fragment key={file.name}>
                       {/* Database row */}
                       <tr
-                        key={file.name}
                         className={`border-b border-slate-200 hover:bg-slate-50 ${fileIndex > 0 ? 'border-t-2 border-t-slate-300' : ''}`}
                       >
                         <td className="px-4 py-3">
@@ -472,7 +561,7 @@ export function Admin() {
                           </tr>
                         )
                       })}
-                    </>
+                    </React.Fragment>
                   )
                 })}
               </tbody>
@@ -797,7 +886,7 @@ export function Admin() {
                     ) : (
                       <div>
                         <p className="text-slate-700">Click to select a DuckDB file</p>
-                        <p className="text-sm text-slate-500">Max size: 500 MB</p>
+                        <p className="text-sm text-slate-500">Max size: 100 MB</p>
                       </div>
                     )}
                   </label>
@@ -846,6 +935,8 @@ export function Admin() {
           </div>
         )}
       </div>
+      )}
+      </SignedIn>
     </main>
   )
 }

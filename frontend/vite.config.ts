@@ -14,6 +14,19 @@ export default defineConfig(({ mode }) => {
       port: 4200,
       strictPort: false,
       proxy: {
+        // Upload endpoint - separate proxy for multipart handling
+        '/api/upload': {
+          target: backendUrl,
+          changeOrigin: true,
+          rewrite: () => '/api/v1/admin/files/upload',
+          configure: (proxy) => {
+            proxy.on('proxyReq', (proxyReq) => {
+              if (apiKey) {
+                proxyReq.setHeader('Authorization', `Bearer ${apiKey}`)
+              }
+            })
+          }
+        },
         // Local dev: proxy /api/duckdb to simulate the serverless function
         '/api/duckdb': {
           target: backendUrl,
@@ -39,8 +52,6 @@ export default defineConfig(({ mode }) => {
             const tableName = url.searchParams.get('table')
             if (action === 'admin-table-rename' && filename && tableName) return `/api/v1/admin/files/${filename}/tables/${tableName}/rename`
             if (action === 'admin-table-delete' && filename && tableName) return `/api/v1/admin/files/${filename}/tables/${tableName}`
-            // Upload
-            if (action === 'admin-upload') return '/api/v1/admin/files/upload'
             return path
           },
           configure: (proxy) => {

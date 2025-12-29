@@ -1,6 +1,11 @@
 // API calls go through Vercel serverless function (no API key exposed in frontend)
 const API_BASE = '/api/duckdb';
 
+// For local dev file uploads, we need direct backend access (Vite proxy has issues with multipart)
+// These are only used in local dev and are NOT exposed in production builds
+const DEV_BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '';
+const DEV_API_KEY = import.meta.env.VITE_API_KEY || '';
+
 interface QueryResponse {
   columns: string[];
   rows: (string | number | boolean | null)[][];
@@ -165,11 +170,28 @@ export async function uploadAdminFile(
     formData.append('custom_name', customName);
   }
 
-  const response = await fetch(`${API_BASE}?action=admin-upload`, {
-    method: 'POST',
-    body: formData,
-    // Don't set Content-Type header - browser will set it with boundary for multipart
-  });
+  // For local dev, call backend directly (Vite proxy has issues with multipart uploads)
+  // For production, use the Vercel serverless proxy
+  const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+  let response: Response;
+
+  if (isLocalDev && DEV_BACKEND_URL && DEV_API_KEY) {
+    // Direct backend call for local dev
+    response = await fetch(`${DEV_BACKEND_URL}/api/v1/admin/files/upload`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${DEV_API_KEY}`,
+      },
+      body: formData,
+    });
+  } else {
+    // Production: use Vercel serverless proxy
+    response = await fetch(`${API_BASE}?action=admin-upload`, {
+      method: 'POST',
+      body: formData,
+    });
+  }
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ error: 'Upload failed' }));
