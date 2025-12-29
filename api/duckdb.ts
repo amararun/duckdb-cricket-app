@@ -169,6 +169,48 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         break
       }
 
+      case 'admin-upload': {
+        if (req.method !== 'POST') {
+          return res.status(405).json({ error: 'POST required for upload' })
+        }
+        // For file uploads, we need to forward the raw body with the correct content-type
+        // Vercel parses multipart forms, so we need to reconstruct the FormData
+        const contentType = req.headers['content-type'] || ''
+        if (!contentType.includes('multipart/form-data')) {
+          return res.status(400).json({ error: 'Content-Type must be multipart/form-data' })
+        }
+
+        // Get the file and custom_name from parsed body
+        const uploadBody = req.body as { file?: { filepath?: string; originalFilename?: string; mimetype?: string; size?: number }; custom_name?: string } | undefined
+
+        // Vercel doesn't parse multipart by default in the same way
+        // We need to use a different approach - forward the raw request
+        const uploadUrl = `${BACKEND_URL}/api/v1/admin/files/upload`
+
+        // For Vercel, we'll need to read the raw body and forward it
+        // Since Vercel already parsed it, let's try a simpler approach with form data reconstruction
+        // Actually, for this to work properly we need the raw body
+
+        // Forward raw request body with original content-type
+        const uploadResponse = await fetch(uploadUrl, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${BACKEND_API_KEY}`,
+            'Content-Type': contentType,
+          },
+          // @ts-ignore - req.body may be buffer for multipart
+          body: req.body,
+          // Vercel keeps raw body for multipart when not JSON
+          duplex: 'half',
+        } as RequestInit)
+
+        const uploadData = await uploadResponse.json()
+        if (!uploadResponse.ok) {
+          return res.status(uploadResponse.status).json(uploadData)
+        }
+        return res.status(200).json(uploadData)
+      }
+
       default:
         return res.status(400).json({ error: `Unknown action: ${action}` })
     }

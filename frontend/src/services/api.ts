@@ -145,3 +145,36 @@ export async function deleteAdminTable(
     }
   );
 }
+
+// ============== Upload ==============
+
+export interface UploadResponse {
+  message: string;
+  filename: string;
+  size_bytes: number;
+  size_mb: number;
+}
+
+export async function uploadAdminFile(
+  file: File,
+  customName?: string
+): Promise<UploadResponse> {
+  const formData = new FormData();
+  formData.append('file', file);
+  if (customName) {
+    formData.append('custom_name', customName);
+  }
+
+  const response = await fetch(`${API_BASE}?action=admin-upload`, {
+    method: 'POST',
+    body: formData,
+    // Don't set Content-Type header - browser will set it with boundary for multipart
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Upload failed' }));
+    throw new Error(error.error || error.detail || `HTTP ${response.status}`);
+  }
+
+  return response.json();
+}

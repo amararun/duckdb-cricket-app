@@ -8,6 +8,7 @@ import {
   getAdminFileDownloadUrl,
   renameAdminTable,
   deleteAdminTable,
+  uploadAdminFile,
   AdminFile,
   AdminPreviewResponse,
   AdminPreviewTable
@@ -57,6 +58,12 @@ export function Admin() {
   // Table delete confirmation
   const [deleteTableInfo, setDeleteTableInfo] = useState<{ file: AdminFile; tableName: string } | null>(null)
 
+  // Upload modal
+  const [showUploadModal, setShowUploadModal] = useState(false)
+  const [uploadFile, setUploadFile] = useState<File | null>(null)
+  const [uploadCustomName, setUploadCustomName] = useState('')
+  const [uploadProgress, setUploadProgress] = useState(false)
+
   async function fetchFiles() {
     setLoading(true)
     setError(null)
@@ -80,7 +87,11 @@ export function Admin() {
   useEffect(() => {
     function handleEscape(e: KeyboardEvent) {
       if (e.key === 'Escape') {
-        if (previewData) {
+        if (showUploadModal) {
+          setShowUploadModal(false)
+          setUploadFile(null)
+          setUploadCustomName('')
+        } else if (previewData) {
           setPreviewData(null)
           setPreviewTableFilter(null)
         } else if (renameFile) {
@@ -96,7 +107,7 @@ export function Admin() {
     }
     window.addEventListener('keydown', handleEscape)
     return () => window.removeEventListener('keydown', handleEscape)
-  }, [previewData, renameFile, deleteConfirm, renameTableInfo, deleteTableInfo])
+  }, [showUploadModal, previewData, renameFile, deleteConfirm, renameTableInfo, deleteTableInfo])
 
   function toggleExpand(filename: string) {
     setExpandedFiles(prev => {
@@ -192,6 +203,32 @@ export function Admin() {
     }
   }
 
+  async function handleUpload() {
+    if (!uploadFile) return
+    setUploadProgress(true)
+    try {
+      await uploadAdminFile(uploadFile, uploadCustomName || undefined)
+      setShowUploadModal(false)
+      setUploadFile(null)
+      setUploadCustomName('')
+      await fetchFiles()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to upload file')
+    } finally {
+      setUploadProgress(false)
+    }
+  }
+
+  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (file) {
+      setUploadFile(file)
+      // Pre-fill custom name from filename (without extension)
+      const nameWithoutExt = file.name.replace(/\.duckdb$/i, '')
+      setUploadCustomName(nameWithoutExt)
+    }
+  }
+
   function formatNumber(num: number): string {
     return num.toLocaleString()
   }
@@ -224,7 +261,7 @@ export function Admin() {
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setError('Upload functionality coming soon!')}
+              onClick={() => setShowUploadModal(true)}
               className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
             >
               <Upload className="h-4 w-4" />
@@ -449,7 +486,7 @@ export function Admin() {
             <HardDrive className="h-12 w-12 text-slate-400 mx-auto mb-3" />
             <p className="text-slate-700">No DuckDB files found</p>
             <button
-              onClick={() => setError('Upload functionality coming soon!')}
+              onClick={() => setShowUploadModal(true)}
               className="mt-4 flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors mx-auto"
             >
               <Upload className="h-4 w-4" />
@@ -715,6 +752,93 @@ export function Admin() {
                   >
                     {actionLoading === `${deleteTableInfo.file.name}-${deleteTableInfo.tableName}` && <Loader2 className="h-4 w-4 animate-spin" />}
                     Delete Table
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Upload Modal */}
+        {showUploadModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-green-50">
+                <h2 className="font-bold text-green-800">Upload DuckDB File</h2>
+                <button
+                  onClick={() => {
+                    setShowUploadModal(false)
+                    setUploadFile(null)
+                    setUploadCustomName('')
+                  }}
+                  className="p-1 hover:bg-green-100 rounded transition-colors"
+                >
+                  <X className="h-5 w-5 text-green-600" />
+                </button>
+              </div>
+              <div className="p-4">
+                <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-green-400 transition-colors">
+                  <input
+                    type="file"
+                    accept=".duckdb"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                    id="file-upload"
+                  />
+                  <label htmlFor="file-upload" className="cursor-pointer">
+                    <Upload className="h-10 w-10 text-slate-400 mx-auto mb-2" />
+                    {uploadFile ? (
+                      <div>
+                        <p className="text-slate-800 font-medium">{uploadFile.name}</p>
+                        <p className="text-sm text-slate-600">
+                          {(uploadFile.size / (1024 * 1024)).toFixed(2)} MB
+                        </p>
+                      </div>
+                    ) : (
+                      <div>
+                        <p className="text-slate-700">Click to select a DuckDB file</p>
+                        <p className="text-sm text-slate-500">Max size: 500 MB</p>
+                      </div>
+                    )}
+                  </label>
+                </div>
+
+                {uploadFile && (
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
+                      Custom filename (optional)
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={uploadCustomName}
+                        onChange={(e) => setUploadCustomName(e.target.value)}
+                        placeholder="Enter custom name"
+                        className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-slate-800"
+                      />
+                      <span className="text-slate-600">.duckdb</span>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex justify-end gap-2 mt-4">
+                  <button
+                    onClick={() => {
+                      setShowUploadModal(false)
+                      setUploadFile(null)
+                      setUploadCustomName('')
+                    }}
+                    className="px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleUpload}
+                    disabled={!uploadFile || uploadProgress}
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors flex items-center gap-2"
+                  >
+                    {uploadProgress && <Loader2 className="h-4 w-4 animate-spin" />}
+                    Upload
                   </button>
                 </div>
               </div>

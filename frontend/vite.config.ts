@@ -39,6 +39,8 @@ export default defineConfig(({ mode }) => {
             const tableName = url.searchParams.get('table')
             if (action === 'admin-table-rename' && filename && tableName) return `/api/v1/admin/files/${filename}/tables/${tableName}/rename`
             if (action === 'admin-table-delete' && filename && tableName) return `/api/v1/admin/files/${filename}/tables/${tableName}`
+            // Upload
+            if (action === 'admin-upload') return '/api/v1/admin/files/upload'
             return path
           },
           configure: (proxy) => {
