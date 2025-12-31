@@ -19,7 +19,8 @@ import {
   uploadAdminFile,
   AdminFile,
   AdminPreviewResponse,
-  AdminPreviewTable
+  AdminPreviewTable,
+  UploadProgress
 } from '../services/api'
 import {
   Loader2,
@@ -84,7 +85,8 @@ export function Admin() {
   const [showUploadModal, setShowUploadModal] = useState(false)
   const [uploadFile, setUploadFile] = useState<File | null>(null)
   const [uploadCustomName, setUploadCustomName] = useState('')
-  const [uploadProgress, setUploadProgress] = useState(false)
+  const [uploadInProgress, setUploadInProgress] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null)
 
   async function fetchFiles() {
     setLoading(true)
@@ -227,21 +229,27 @@ export function Admin() {
 
   async function handleUpload() {
     if (!uploadFile) return
-    setUploadProgress(true)
+    setUploadInProgress(true)
+    setUploadProgress(null)
     try {
-      await uploadAdminFile(uploadFile, uploadCustomName || undefined)
+      await uploadAdminFile(
+        uploadFile,
+        uploadCustomName || undefined,
+        (progress) => setUploadProgress(progress)
+      )
       setShowUploadModal(false)
       setUploadFile(null)
       setUploadCustomName('')
+      setUploadProgress(null)
       await fetchFiles()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to upload file')
     } finally {
-      setUploadProgress(false)
+      setUploadInProgress(false)
     }
   }
 
-  const MAX_FILE_SIZE = 100 * 1024 * 1024 // 100MB limit for practical uploads
+  const MAX_FILE_SIZE = 500 * 1024 * 1024 // 500MB limit (direct upload bypasses Vercel limit)
 
   function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -856,26 +864,31 @@ export function Admin() {
                 <h2 className="font-bold text-green-800">Upload DuckDB File</h2>
                 <button
                   onClick={() => {
-                    setShowUploadModal(false)
-                    setUploadFile(null)
-                    setUploadCustomName('')
+                    if (!uploadInProgress) {
+                      setShowUploadModal(false)
+                      setUploadFile(null)
+                      setUploadCustomName('')
+                      setUploadProgress(null)
+                    }
                   }}
-                  className="p-1 hover:bg-green-100 rounded transition-colors"
+                  disabled={uploadInProgress}
+                  className="p-1 hover:bg-green-100 rounded transition-colors disabled:opacity-50"
                 >
                   <X className="h-5 w-5 text-green-600" />
                 </button>
               </div>
               <div className="p-4">
-                <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-green-400 transition-colors">
+                <div className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${uploadInProgress ? 'border-green-400 bg-green-50' : 'border-slate-300 hover:border-green-400'}`}>
                   <input
                     type="file"
                     accept=".duckdb"
                     onChange={handleFileSelect}
                     className="hidden"
                     id="file-upload"
+                    disabled={uploadInProgress}
                   />
-                  <label htmlFor="file-upload" className="cursor-pointer">
-                    <Upload className="h-10 w-10 text-slate-400 mx-auto mb-2" />
+                  <label htmlFor="file-upload" className={uploadInProgress ? 'cursor-not-allowed' : 'cursor-pointer'}>
+                    <Upload className={`h-10 w-10 mx-auto mb-2 ${uploadInProgress ? 'text-green-500' : 'text-slate-400'}`} />
                     {uploadFile ? (
                       <div>
                         <p className="text-slate-800 font-medium">{uploadFile.name}</p>
@@ -886,13 +899,32 @@ export function Admin() {
                     ) : (
                       <div>
                         <p className="text-slate-700">Click to select a DuckDB file</p>
-                        <p className="text-sm text-slate-500">Max size: 100 MB</p>
+                        <p className="text-sm text-slate-500">Max size: 500 MB</p>
                       </div>
                     )}
                   </label>
                 </div>
 
-                {uploadFile && (
+                {/* Upload Progress Bar */}
+                {uploadInProgress && uploadProgress && (
+                  <div className="mt-4">
+                    <div className="flex justify-between text-sm text-slate-600 mb-1">
+                      <span>Uploading...</span>
+                      <span>{uploadProgress.percentage}%</span>
+                    </div>
+                    <div className="w-full bg-slate-200 rounded-full h-2.5">
+                      <div
+                        className="bg-green-600 h-2.5 rounded-full transition-all duration-300"
+                        style={{ width: `${uploadProgress.percentage}%` }}
+                      ></div>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-1">
+                      {(uploadProgress.loaded / (1024 * 1024)).toFixed(1)} MB / {(uploadProgress.total / (1024 * 1024)).toFixed(1)} MB
+                    </p>
+                  </div>
+                )}
+
+                {uploadFile && !uploadInProgress && (
                   <div className="mt-4">
                     <label className="block text-sm font-medium text-slate-700 mb-1">
                       Custom filename (optional)
@@ -913,21 +945,25 @@ export function Admin() {
                 <div className="flex justify-end gap-2 mt-4">
                   <button
                     onClick={() => {
-                      setShowUploadModal(false)
-                      setUploadFile(null)
-                      setUploadCustomName('')
+                      if (!uploadInProgress) {
+                        setShowUploadModal(false)
+                        setUploadFile(null)
+                        setUploadCustomName('')
+                        setUploadProgress(null)
+                      }
                     }}
-                    className="px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+                    disabled={uploadInProgress}
+                    className="px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-50"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleUpload}
-                    disabled={!uploadFile || uploadProgress}
+                    disabled={!uploadFile || uploadInProgress}
                     className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors flex items-center gap-2"
                   >
-                    {uploadProgress && <Loader2 className="h-4 w-4 animate-spin" />}
-                    Upload
+                    {uploadInProgress && <Loader2 className="h-4 w-4 animate-spin" />}
+                    {uploadInProgress ? 'Uploading...' : 'Upload'}
                   </button>
                 </div>
               </div>

@@ -2,9 +2,8 @@
 const API_BASE = '/api/duckdb';
 
 // For local dev file uploads, we need direct backend access (Vite proxy has issues with multipart)
-// These are only used in local dev and are NOT exposed in production builds
+// This is only used in local dev and is NOT exposed in production builds
 const DEV_BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '';
-const DEV_API_KEY = import.meta.env.VITE_API_KEY || '';
 
 interface QueryResponse {
   columns: string[];
@@ -160,38 +159,130 @@ export interface UploadResponse {
   size_mb: number;
 }
 
+export interface UploadTokenResponse {
+  token: string;
+  filename: string;
+  expires_in: number;
+  upload_url: string;
+  max_size_mb: number;
+}
+
+export interface UploadProgress {
+  loaded: number;
+  total: number;
+  percentage: number;
+}
+
+/**
+ * Get an upload token for direct upload (bypasses Vercel 4.5MB limit)
+ */
+export async function getUploadToken(
+  filename: string,
+  contentLength?: number
+): Promise<UploadTokenResponse> {
+  return fetchApi('action=admin-upload-token', {
+    method: 'POST',
+    body: JSON.stringify({ filename, content_length: contentLength }),
+  });
+}
+
+/**
+ * Upload a file directly to the backend using a pre-generated token
+ * This bypasses Vercel's 4.5MB payload limit
+ */
+export async function uploadAdminFileDirect(
+  file: File,
+  customName?: string,
+  onProgress?: (progress: UploadProgress) => void
+): Promise<UploadResponse> {
+  const filename = customName || file.name.replace(/\.duckdb$/i, '');
+
+  // Step 1: Get upload token via Vercel proxy (small JSON request)
+  const tokenResponse = await getUploadToken(filename, file.size);
+
+  // Step 2: Upload directly to backend using the token (bypasses Vercel)
+  // The backend URL is derived from the token response upload_url
+  const backendUrl = DEV_BACKEND_URL || 'https://duckdb-cricket-backend.tigzig.com';
+  const uploadUrl = `${backendUrl}${tokenResponse.upload_url}`;
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  return new Promise<UploadResponse>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+
+    xhr.upload.addEventListener('progress', (event) => {
+      if (event.lengthComputable && onProgress) {
+        onProgress({
+          loaded: event.loaded,
+          total: event.total,
+          percentage: Math.round((event.loaded / event.total) * 100),
+        });
+      }
+    });
+
+    xhr.addEventListener('load', () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          resolve(JSON.parse(xhr.responseText));
+        } catch {
+          reject(new Error('Invalid response from server'));
+        }
+      } else {
+        try {
+          const error = JSON.parse(xhr.responseText);
+          reject(new Error(error.error || error.detail || `HTTP ${xhr.status}`));
+        } catch {
+          reject(new Error(`Upload failed: HTTP ${xhr.status}`));
+        }
+      }
+    });
+
+    xhr.addEventListener('error', () => {
+      reject(new Error('Network error during upload'));
+    });
+
+    xhr.addEventListener('abort', () => {
+      reject(new Error('Upload cancelled'));
+    });
+
+    xhr.open('POST', uploadUrl);
+    xhr.send(formData);
+  });
+}
+
+/**
+ * Upload a file - uses direct upload for large files, proxy for small files
+ */
 export async function uploadAdminFile(
   file: File,
-  customName?: string
+  customName?: string,
+  onProgress?: (progress: UploadProgress) => void
 ): Promise<UploadResponse> {
+  const VERCEL_LIMIT = 4 * 1024 * 1024; // 4MB (safe margin below 4.5MB limit)
+
+  // For local dev, always use direct backend call
+  const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+  // Use direct upload for:
+  // 1. Large files (> 4MB) - bypasses Vercel limit
+  // 2. When progress tracking is needed
+  // 3. Local dev environment
+  if (file.size > VERCEL_LIMIT || onProgress || isLocalDev) {
+    return uploadAdminFileDirect(file, customName, onProgress);
+  }
+
+  // Small files can go through Vercel proxy (simpler, no CORS issues)
   const formData = new FormData();
   formData.append('file', file);
   if (customName) {
     formData.append('custom_name', customName);
   }
 
-  // For local dev, call backend directly (Vite proxy has issues with multipart uploads)
-  // For production, use the Vercel serverless proxy
-  const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-
-  let response: Response;
-
-  if (isLocalDev && DEV_BACKEND_URL && DEV_API_KEY) {
-    // Direct backend call for local dev
-    response = await fetch(`${DEV_BACKEND_URL}/api/v1/admin/files/upload`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${DEV_API_KEY}`,
-      },
-      body: formData,
-    });
-  } else {
-    // Production: use Vercel serverless proxy
-    response = await fetch(`${API_BASE}?action=admin-upload`, {
-      method: 'POST',
-      body: formData,
-    });
-  }
+  const response = await fetch(`${API_BASE}?action=admin-upload`, {
+    method: 'POST',
+    body: formData,
+  });
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ error: 'Upload failed' }));

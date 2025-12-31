@@ -211,6 +211,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(200).json(uploadData)
       }
 
+      // ============== Direct Upload Token ==============
+      case 'admin-upload-token': {
+        if (req.method !== 'POST') {
+          return res.status(405).json({ error: 'POST required for upload-token' })
+        }
+        backendUrl = `${BACKEND_URL}/api/v1/admin/upload-token`
+        method = 'POST'
+        body = JSON.stringify(req.body)
+        break
+      }
+
       default:
         return res.status(400).json({ error: `Unknown action: ${action}` })
     }
