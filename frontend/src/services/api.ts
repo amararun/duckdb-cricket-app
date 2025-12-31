@@ -73,6 +73,7 @@ export interface AdminFile {
   tables: string[];
   table_row_counts: Record<string, number>;
   updated_at: string;
+  share_token: string | null;
 }
 
 export interface AdminFilesResponse {
@@ -148,6 +149,32 @@ export async function deleteAdminTable(
       method: 'DELETE',
     }
   );
+}
+
+// ============== File Sharing ==============
+
+export interface ShareResponse {
+  message: string;
+  token: string;
+  share_url: string;
+  filename: string;
+}
+
+export async function shareAdminFile(filename: string): Promise<ShareResponse> {
+  return fetchApi(`action=admin-share&filename=${encodeURIComponent(filename)}`, {
+    method: 'POST',
+  });
+}
+
+export async function unshareAdminFile(filename: string): Promise<{ message: string; filename: string }> {
+  return fetchApi(`action=admin-unshare&filename=${encodeURIComponent(filename)}`, {
+    method: 'DELETE',
+  });
+}
+
+export function getShareDownloadUrl(token: string): string {
+  // Use duckdb-upload subdomain for share downloads (bypasses Cloudflare)
+  return `https://duckdb-upload.tigzig.com/s/${token}`;
 }
 
 // ============== Upload ==============

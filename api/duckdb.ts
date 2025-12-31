@@ -222,6 +222,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         break
       }
 
+      // ============== File Sharing ==============
+      case 'admin-share': {
+        if (req.method !== 'POST') {
+          return res.status(405).json({ error: 'POST required for share' })
+        }
+        const shareFile = req.query.filename as string
+        if (!shareFile) {
+          return res.status(400).json({ error: 'Missing filename parameter' })
+        }
+        backendUrl = `${BACKEND_URL}/api/v1/admin/files/${encodeURIComponent(shareFile)}/share`
+        method = 'POST'
+        break
+      }
+
+      case 'admin-unshare': {
+        if (req.method !== 'DELETE') {
+          return res.status(405).json({ error: 'DELETE required for unshare' })
+        }
+        const unshareFile = req.query.filename as string
+        if (!unshareFile) {
+          return res.status(400).json({ error: 'Missing filename parameter' })
+        }
+        backendUrl = `${BACKEND_URL}/api/v1/admin/files/${encodeURIComponent(unshareFile)}/share`
+        method = 'DELETE'
+        break
+      }
+
       default:
         return res.status(400).json({ error: `Unknown action: ${action}` })
     }

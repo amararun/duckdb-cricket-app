@@ -38,6 +38,10 @@ temp/
 data/
 *.duckdb
 
+# Cricsheet data (downloaded zips and generated db)
+projects/cricsheet-data/*.zip
+projects/cricsheet-data/*.duckdb
+
 # Temporary exploration scripts
 explore.py
 

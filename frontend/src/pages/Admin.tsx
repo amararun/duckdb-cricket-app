@@ -17,6 +17,9 @@ import {
   renameAdminTable,
   deleteAdminTable,
   uploadAdminFile,
+  shareAdminFile,
+  unshareAdminFile,
+  getShareDownloadUrl,
   AdminFile,
   AdminPreviewResponse,
   AdminPreviewTable,
@@ -39,7 +42,11 @@ import {
   Upload,
   LogIn,
   LogOut,
-  Shield
+  Shield,
+  Share2,
+  Link,
+  Copy,
+  Check
 } from 'lucide-react'
 
 // Access is controlled via Clerk Dashboard:
@@ -88,6 +95,9 @@ export function Admin() {
   const [uploadInProgress, setUploadInProgress] = useState(false)
   const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null)
   const [uploadError, setUploadError] = useState<string | null>(null)
+
+  // Share URL copy feedback
+  const [copiedShareUrl, setCopiedShareUrl] = useState<string | null>(null)
 
   async function fetchFiles() {
     setLoading(true)
@@ -250,6 +260,47 @@ export function Admin() {
       setUploadError(err instanceof Error ? err.message : 'Failed to upload file')
     } finally {
       setUploadInProgress(false)
+    }
+  }
+
+  async function handleShare(file: AdminFile) {
+    setActionLoading(file.name)
+    try {
+      const response = await shareAdminFile(file.name)
+      // Copy share URL to clipboard
+      const shareUrl = getShareDownloadUrl(response.token)
+      await navigator.clipboard.writeText(shareUrl)
+      setCopiedShareUrl(file.name)
+      setTimeout(() => setCopiedShareUrl(null), 2000)
+      await fetchFiles()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to share file')
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  async function handleUnshare(file: AdminFile) {
+    setActionLoading(file.name)
+    try {
+      await unshareAdminFile(file.name)
+      await fetchFiles()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to unshare file')
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  async function handleCopyShareUrl(file: AdminFile) {
+    if (!file.share_token) return
+    try {
+      const shareUrl = getShareDownloadUrl(file.share_token)
+      await navigator.clipboard.writeText(shareUrl)
+      setCopiedShareUrl(file.name)
+      setTimeout(() => setCopiedShareUrl(null), 2000)
+    } catch (err) {
+      setError('Failed to copy URL to clipboard')
     }
   }
 
@@ -481,6 +532,40 @@ export function Admin() {
                             >
                               <Download className="h-4 w-4" />
                             </a>
+                            {/* Share / Unshare */}
+                            {file.share_token ? (
+                              <>
+                                <button
+                                  onClick={() => handleCopyShareUrl(file)}
+                                  disabled={actionLoading === file.name}
+                                  className="p-1.5 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded transition-colors"
+                                  title="Copy share link"
+                                >
+                                  {copiedShareUrl === file.name ? (
+                                    <Check className="h-4 w-4" />
+                                  ) : (
+                                    <Copy className="h-4 w-4" />
+                                  )}
+                                </button>
+                                <button
+                                  onClick={() => handleUnshare(file)}
+                                  disabled={actionLoading === file.name}
+                                  className="p-1.5 text-emerald-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                  title="Unshare (remove public link)"
+                                >
+                                  <Link className="h-4 w-4" />
+                                </button>
+                              </>
+                            ) : (
+                              <button
+                                onClick={() => handleShare(file)}
+                                disabled={actionLoading === file.name}
+                                className="p-1.5 text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded transition-colors"
+                                title="Create shareable link"
+                              >
+                                <Share2 className="h-4 w-4" />
+                              </button>
+                            )}
                             {/* Rename */}
                             <button
                               onClick={() => {

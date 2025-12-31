@@ -18,7 +18,12 @@
       "Bash(vercel link:*)",
       "Bash(vercel env add:*)",
       "Bash(vercel env pull:*)",
-      "Bash(vercel:*)"
+      "Bash(vercel:*)",
+      "Bash(netstat:*)",
+      "Bash(taskkill:*)",
+      "Bash(nslookup:*)",
+      "Bash(unzip:*)",
+      "Bash(ssh 167.235.23.241-root \"cat /data/duckdb-datasets/file_metadata.json\")"
     ]
   }
 }
