@@ -7,7 +7,8 @@ import {
   Loader2,
   ChevronDown,
   ChevronUp,
-  TrendingUp
+  TrendingUp,
+  Shield
 } from 'lucide-react'
 import { executeQuery } from '../services/api'
 
@@ -16,6 +17,7 @@ interface DashboardStats {
   totalMatches: number
   odiMatches: number
   t20Matches: number
+  testMatches: number
   uniqueTeams: number
   uniqueVenues: number
   dateRange: { from: string; to: string }
@@ -35,20 +37,21 @@ interface RecentMatch {
   venue: string
   team1: string
   team2: string
-  team1Score: number
-  team2Score: number
   winner: string
+  winnerRuns: number | null
+  winnerWickets: number | null
 }
 
 interface YearlyMatches {
   year: number
   odi: number
   t20: number
+  test: number
   total: number
 }
 
 export function Dashboard() {
-  const [matchType, setMatchType] = useState<'All' | 'ODI' | 'T20'>('All')
+  const [matchType, setMatchType] = useState<'All' | 'ODI' | 'T20' | 'TEST'>('All')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -62,20 +65,30 @@ export function Dashboard() {
   const [showAllMatches, setShowAllMatches] = useState(false)
   const [winRatesLoading, setWinRatesLoading] = useState(false)
 
-  // Fetch dashboard stats
+  // Fetch dashboard stats from match_info table
   useEffect(() => {
     async function fetchStats() {
       try {
         const result = await executeQuery(`
           SELECT
-            COUNT(DISTINCT match_id) as total_matches,
-            COUNT(DISTINCT CASE WHEN match_type = 'ODI' THEN match_id END) as odi_matches,
-            COUNT(DISTINCT CASE WHEN match_type = 'T20' THEN match_id END) as t20_matches,
-            COUNT(DISTINCT batting_team) as unique_teams,
+            COUNT(*) as total_matches,
+            COUNT(CASE WHEN match_type = 'ODI' THEN 1 END) as odi_matches,
+            COUNT(CASE WHEN match_type = 'T20' THEN 1 END) as t20_matches,
+            COUNT(CASE WHEN match_type = 'TEST' THEN 1 END) as test_matches,
+            COUNT(DISTINCT team1) + COUNT(DISTINCT team2) as unique_teams_estimate,
             COUNT(DISTINCT venue) as unique_venues,
             MIN(start_date) as min_date,
             MAX(start_date) as max_date
-          FROM ball_by_ball
+          FROM match_info
+        `)
+
+        // Get actual unique teams count
+        const teamsResult = await executeQuery(`
+          SELECT COUNT(DISTINCT team) as teams FROM (
+            SELECT team1 as team FROM match_info
+            UNION
+            SELECT team2 as team FROM match_info
+          )
         `)
 
         if (result.rows.length > 0) {
@@ -84,11 +97,12 @@ export function Dashboard() {
             totalMatches: row[0] as number,
             odiMatches: row[1] as number,
             t20Matches: row[2] as number,
-            uniqueTeams: row[3] as number,
-            uniqueVenues: row[4] as number,
+            testMatches: row[3] as number,
+            uniqueTeams: teamsResult.rows[0][0] as number,
+            uniqueVenues: row[5] as number,
             dateRange: {
-              from: row[5] as string,
-              to: row[6] as string
+              from: row[6] as string,
+              to: row[7] as string
             }
           })
         }
@@ -99,51 +113,26 @@ export function Dashboard() {
     fetchStats()
   }, [])
 
-  // Fetch team win rates based on filter
+  // Fetch team win rates from match_info table
   useEffect(() => {
     async function fetchWinRates() {
       setWinRatesLoading(true)
       try {
         const typeFilter = matchType !== 'All' ? `WHERE match_type = '${matchType}'` : ''
 
-        // Get match results by comparing innings scores
         const result = await executeQuery(`
-          WITH match_scores AS (
-            SELECT
-              match_id,
-              match_type,
-              innings,
-              batting_team,
-              SUM(runs_off_bat + COALESCE(extras, 0)) as total_runs
-            FROM ball_by_ball
-            ${typeFilter}
-            GROUP BY match_id, match_type, innings, batting_team
-          ),
-          match_results AS (
-            SELECT
-              m1.match_id,
-              m1.batting_team as team1,
-              m1.total_runs as team1_score,
-              m2.batting_team as team2,
-              m2.total_runs as team2_score,
-              CASE
-                WHEN m1.total_runs > m2.total_runs THEN m2.batting_team
-                WHEN m2.total_runs > m1.total_runs THEN m1.batting_team
-                ELSE 'Tie'
-              END as winner
-            FROM match_scores m1
-            JOIN match_scores m2 ON m1.match_id = m2.match_id AND m1.innings = 1 AND m2.innings = 2
+          WITH team_matches AS (
+            SELECT team1 as team, winner FROM match_info ${typeFilter}
+            UNION ALL
+            SELECT team2 as team, winner FROM match_info ${typeFilter}
           ),
           team_stats AS (
             SELECT
               team,
               COUNT(*) as matches,
               SUM(CASE WHEN winner = team THEN 1 ELSE 0 END) as wins
-            FROM (
-              SELECT team1 as team, winner FROM match_results
-              UNION ALL
-              SELECT team2 as team, winner FROM match_results
-            )
+            FROM team_matches
+            WHERE team IS NOT NULL
             GROUP BY team
             HAVING COUNT(*) >= 50
           )
@@ -172,56 +161,25 @@ export function Dashboard() {
     fetchWinRates()
   }, [matchType])
 
-  // Fetch recent matches
+  // Fetch recent matches from match_info table
   useEffect(() => {
     async function fetchRecentMatches() {
       try {
         const typeFilter = matchType !== 'All' ? `WHERE match_type = '${matchType}'` : ''
 
         const result = await executeQuery(`
-          WITH match_scores AS (
-            SELECT
-              match_id,
-              match_type,
-              start_date,
-              venue,
-              innings,
-              batting_team,
-              SUM(runs_off_bat + COALESCE(extras, 0)) as total_runs,
-              COUNT(DISTINCT CASE WHEN wicket_type IS NOT NULL THEN player_dismissed END) as wickets
-            FROM ball_by_ball
-            ${typeFilter}
-            GROUP BY match_id, match_type, start_date, venue, innings, batting_team
-          ),
-          match_summary AS (
-            SELECT
-              m1.match_id,
-              m1.match_type,
-              m1.start_date,
-              m1.venue,
-              m1.batting_team as team1,
-              m2.batting_team as team2,
-              m1.total_runs as team1_score,
-              m2.total_runs as team2_score,
-              CASE
-                WHEN m1.total_runs > m2.total_runs THEN m2.batting_team
-                WHEN m2.total_runs > m1.total_runs THEN m1.batting_team
-                ELSE 'Tie'
-              END as winner
-            FROM match_scores m1
-            JOIN match_scores m2 ON m1.match_id = m2.match_id AND m1.innings = 1 AND m2.innings = 2
-          )
-          SELECT DISTINCT
+          SELECT
             match_id,
             match_type,
             start_date,
             venue,
             team1,
             team2,
-            team1_score,
-            team2_score,
-            winner
-          FROM match_summary
+            winner,
+            winner_runs,
+            winner_wickets
+          FROM match_info
+          ${typeFilter}
           ORDER BY start_date DESC
           LIMIT 50
         `)
@@ -233,9 +191,9 @@ export function Dashboard() {
           venue: row[3] as string,
           team1: row[4] as string,
           team2: row[5] as string,
-          team1Score: row[6] as number,
-          team2Score: row[7] as number,
-          winner: row[8] as string
+          winner: row[6] as string || 'No Result',
+          winnerRuns: row[7] as number | null,
+          winnerWickets: row[8] as number | null
         })))
       } catch (err) {
         console.error('Failed to fetch recent matches:', err)
@@ -244,7 +202,7 @@ export function Dashboard() {
     fetchRecentMatches()
   }, [matchType])
 
-  // Fetch yearly match counts
+  // Fetch yearly match counts from match_info table
   useEffect(() => {
     async function fetchYearlyMatches() {
       setLoading(true)
@@ -253,10 +211,11 @@ export function Dashboard() {
         const result = await executeQuery(`
           SELECT
             EXTRACT(YEAR FROM start_date)::INT as year,
-            COUNT(DISTINCT CASE WHEN match_type = 'ODI' THEN match_id END) as odi,
-            COUNT(DISTINCT CASE WHEN match_type = 'T20' THEN match_id END) as t20,
-            COUNT(DISTINCT match_id) as total
-          FROM ball_by_ball
+            COUNT(CASE WHEN match_type = 'ODI' THEN 1 END) as odi,
+            COUNT(CASE WHEN match_type = 'T20' THEN 1 END) as t20,
+            COUNT(CASE WHEN match_type = 'TEST' THEN 1 END) as test,
+            COUNT(*) as total
+          FROM match_info
           GROUP BY EXTRACT(YEAR FROM start_date)
           ORDER BY year
         `)
@@ -265,7 +224,8 @@ export function Dashboard() {
           year: row[0] as number,
           odi: row[1] as number,
           t20: row[2] as number,
-          total: row[3] as number
+          test: row[3] as number,
+          total: row[4] as number
         })))
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch data')
@@ -278,6 +238,18 @@ export function Dashboard() {
 
   const displayedMatches = showAllMatches ? recentMatches : recentMatches.slice(0, 10)
   const maxWinRate = Math.max(...teamWinRates.map(t => t.winRate), 100)
+
+  // Format result string
+  function formatResult(match: RecentMatch): string {
+    if (!match.winner || match.winner === 'No Result') return 'No Result'
+    if (match.winnerRuns && match.winnerRuns > 0) {
+      return `${match.winner} won by ${match.winnerRuns} runs`
+    }
+    if (match.winnerWickets && match.winnerWickets > 0) {
+      return `${match.winner} won by ${match.winnerWickets} wickets`
+    }
+    return `${match.winner} won`
+  }
 
   return (
     <div className="flex-1 p-6">
@@ -294,7 +266,7 @@ export function Dashboard() {
         <div className="mb-6 flex items-center gap-4">
           <span className="text-sm font-medium text-slate-700">Match Type:</span>
           <div className="flex gap-1 bg-slate-100 p-1 rounded-lg">
-            {(['All', 'ODI', 'T20'] as const).map((type) => (
+            {(['All', 'ODI', 'T20', 'TEST'] as const).map((type) => (
               <button
                 key={type}
                 onClick={() => setMatchType(type)}
@@ -304,7 +276,7 @@ export function Dashboard() {
                     : 'text-slate-600 hover:text-slate-800'
                 }`}
               >
-                {type}
+                {type === 'TEST' ? 'Test' : type}
               </button>
             ))}
           </div>
@@ -318,13 +290,20 @@ export function Dashboard() {
         )}
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
           <StatCard
             icon={<Calendar className="h-6 w-6" />}
             label="Total Matches"
             value={stats?.totalMatches.toLocaleString() ?? '--'}
             subtext={stats ? `${stats.dateRange.from.split('-')[0]} - ${stats.dateRange.to.split('-')[0]}` : ''}
             color="indigo"
+          />
+          <StatCard
+            icon={<Shield className="h-6 w-6" />}
+            label="Test Matches"
+            value={stats?.testMatches.toLocaleString() ?? '--'}
+            subtext="Test Cricket"
+            color="red"
           />
           <StatCard
             icon={<Trophy className="h-6 w-6" />}
@@ -354,7 +333,7 @@ export function Dashboard() {
           {/* Team Win Rates Chart */}
           <div className="bg-white border border-slate-200 rounded-lg p-6">
             <h2 className="text-lg font-semibold text-slate-800 mb-4">
-              Team Win Rates {matchType !== 'All' && `(${matchType})`}
+              Team Win Rates {matchType !== 'All' && `(${matchType === 'TEST' ? 'Test' : matchType})`}
             </h2>
             {winRatesLoading ? (
               <div className="flex items-center justify-center py-8">
@@ -411,6 +390,7 @@ export function Dashboard() {
                 <div className="h-64 flex items-end gap-1 pb-6">
                   {yearlyMatches.slice(-15).map((year) => {
                     const maxTotal = Math.max(...yearlyMatches.slice(-15).map(y => y.total))
+                    const testHeight = (year.test / maxTotal) * 100
                     const odiHeight = (year.odi / maxTotal) * 100
                     const t20Height = (year.t20 / maxTotal) * 100
 
@@ -432,13 +412,19 @@ export function Dashboard() {
                             style={{ height: `${odiHeight}%` }}
                             title={`ODI: ${year.odi}`}
                           />
+                          {/* Test bar */}
+                          <div
+                            className="w-full bg-red-500 transition-all hover:bg-red-600"
+                            style={{ height: `${testHeight}%` }}
+                            title={`Test: ${year.test}`}
+                          />
                         </div>
                         <span className="text-xs text-slate-500 mt-1 transform -rotate-45 origin-top-left">
                           {year.year.toString().slice(-2)}
                         </span>
                         {/* Tooltip */}
                         <div className="absolute bottom-full mb-2 hidden group-hover:block bg-slate-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-10">
-                          {year.year}: {year.total} ({year.odi} ODI, {year.t20} T20)
+                          {year.year}: {year.total} ({year.test} Test, {year.odi} ODI, {year.t20} T20)
                         </div>
                       </div>
                     )
@@ -446,6 +432,10 @@ export function Dashboard() {
                 </div>
                 {/* Legend */}
                 <div className="flex justify-center gap-6 mt-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-red-500 rounded" />
+                    <span className="text-xs text-slate-600">Test</span>
+                  </div>
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-emerald-500 rounded" />
                     <span className="text-xs text-slate-600">ODI</span>
@@ -468,7 +458,7 @@ export function Dashboard() {
         <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
             <h2 className="text-lg font-semibold text-slate-800">
-              Recent Matches {matchType !== 'All' && `(${matchType})`}
+              Recent Matches {matchType !== 'All' && `(${matchType === 'TEST' ? 'Test' : matchType})`}
             </h2>
             <span className="text-sm text-slate-500">
               {recentMatches.length} matches
@@ -482,8 +472,7 @@ export function Dashboard() {
                   <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">Date</th>
                   <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">Type</th>
                   <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">Match</th>
-                  <th className="text-center px-4 py-3 text-sm font-semibold text-slate-700">Score</th>
-                  <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">Winner</th>
+                  <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">Result</th>
                   <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">
                     <MapPin className="h-4 w-4 inline mr-1" />
                     Venue
@@ -503,27 +492,20 @@ export function Dashboard() {
                     </td>
                     <td className="px-4 py-3">
                       <span className={`text-xs font-semibold px-2 py-1 rounded ${
-                        match.matchType === 'ODI'
+                        match.matchType === 'TEST'
+                          ? 'bg-red-100 text-red-700'
+                          : match.matchType === 'ODI'
                           ? 'bg-emerald-100 text-emerald-700'
                           : 'bg-amber-100 text-amber-700'
                       }`}>
-                        {match.matchType}
+                        {match.matchType === 'TEST' ? 'Test' : match.matchType}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-sm font-medium text-slate-800">
                       {match.team1} vs {match.team2}
                     </td>
-                    <td className="px-4 py-3 text-sm text-center">
-                      <span className={match.winner === match.team2 ? 'font-bold text-emerald-600' : 'text-slate-600'}>
-                        {match.team1Score}
-                      </span>
-                      <span className="text-slate-400 mx-2">-</span>
-                      <span className={match.winner === match.team1 ? 'font-bold text-emerald-600' : 'text-slate-600'}>
-                        {match.team2Score}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-sm font-semibold text-emerald-700">
-                      {match.winner}
+                    <td className="px-4 py-3 text-sm font-medium text-emerald-700">
+                      {formatResult(match)}
                     </td>
                     <td className="px-4 py-3 text-sm text-slate-500 max-w-xs truncate">
                       {match.venue}
@@ -573,7 +555,7 @@ interface StatCardProps {
   label: string
   value: string
   subtext?: string
-  color: 'indigo' | 'emerald' | 'amber' | 'rose'
+  color: 'indigo' | 'emerald' | 'amber' | 'rose' | 'red'
 }
 
 function StatCard({ icon, label, value, subtext, color }: StatCardProps) {
@@ -582,6 +564,7 @@ function StatCard({ icon, label, value, subtext, color }: StatCardProps) {
     emerald: 'bg-emerald-50 text-emerald-600 border-emerald-200',
     amber: 'bg-amber-50 text-amber-600 border-amber-200',
     rose: 'bg-rose-50 text-rose-600 border-rose-200',
+    red: 'bg-red-50 text-red-600 border-red-200',
   }
 
   return (
