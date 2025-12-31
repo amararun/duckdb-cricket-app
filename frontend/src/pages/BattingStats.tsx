@@ -132,18 +132,18 @@ export function BattingStats() {
         const result = await executeQuery(sql)
 
         const rows: BattingStatsRow[] = result.rows.map(row => ({
-          player: row[0] as string,
-          matches: row[1] as number,
-          innings: row[2] as number,
-          runs: row[3] as number,
-          balls_faced: row[4] as number,
-          dismissals: row[5] as number,
-          not_outs: row[6] as number,
-          average: row[7] as number,
-          strike_rate: row[8] as number,
-          fours: row[9] as number,
-          sixes: row[10] as number,
-          boundary_pct: row[11] as number,
+          player: row[0] as string ?? '',
+          matches: (row[1] as number) ?? 0,
+          innings: (row[2] as number) ?? 0,
+          runs: (row[3] as number) ?? 0,
+          balls_faced: (row[4] as number) ?? 0,
+          dismissals: (row[5] as number) ?? 0,
+          not_outs: (row[6] as number) ?? 0,
+          average: (row[7] as number) ?? 0,
+          strike_rate: (row[8] as number) ?? 0,
+          fours: (row[9] as number) ?? 0,
+          sixes: (row[10] as number) ?? 0,
+          boundary_pct: (row[11] as number) ?? 0,
         }))
 
         setData(rows)

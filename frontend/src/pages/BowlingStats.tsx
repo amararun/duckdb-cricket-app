@@ -126,18 +126,18 @@ export function BowlingStats() {
         const result = await executeQuery(sql)
 
         const rows: BowlingStatsRow[] = result.rows.map(row => ({
-          bowler: row[0] as string,
-          matches: row[1] as number,
-          balls: row[2] as number,
-          overs: row[3] as number,
-          runs: row[4] as number,
-          wickets: row[5] as number,
-          economy: row[6] as number,
-          average: row[7] as number,
-          strike_rate: row[8] as number,
-          dot_pct: row[9] as number,
-          fours: row[10] as number,
-          sixes: row[11] as number,
+          bowler: row[0] as string ?? '',
+          matches: (row[1] as number) ?? 0,
+          balls: (row[2] as number) ?? 0,
+          overs: (row[3] as number) ?? 0,
+          runs: (row[4] as number) ?? 0,
+          wickets: (row[5] as number) ?? 0,
+          economy: (row[6] as number) ?? 0,
+          average: (row[7] as number) ?? 0,
+          strike_rate: (row[8] as number) ?? 0,
+          dot_pct: (row[9] as number) ?? 0,
+          fours: (row[10] as number) ?? 0,
+          sixes: (row[11] as number) ?? 0,
         }))
 
         setData(rows)
