@@ -1,4 +1,4 @@
-import { Trophy, Database, Settings } from 'lucide-react'
+import { Trophy, Database, Settings, Users } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 
 export function Header() {
@@ -49,6 +49,17 @@ export function Header() {
             }`}
           >
             Bowling
+          </Link>
+          <Link
+            to="/head-to-head"
+            className={`px-3 py-1 rounded-md text-sm font-medium transition-colors flex items-center gap-1 ${
+              isActive('/head-to-head')
+                ? 'bg-indigo-700 text-white'
+                : 'text-indigo-200 hover:bg-indigo-800 hover:text-white'
+            }`}
+          >
+            <Users className="h-4 w-4" />
+            H2H
           </Link>
           <Link
             to="/schema"

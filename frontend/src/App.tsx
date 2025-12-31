@@ -7,6 +7,7 @@ import { Matches } from './pages/Matches'
 import { Schema } from './pages/Schema'
 import { BattingStats } from './pages/BattingStats'
 import { BowlingStats } from './pages/BowlingStats'
+import { HeadToHead } from './pages/HeadToHead'
 import { Admin } from './pages/Admin'
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
         <Route path="/schema" element={<Schema />} />
         <Route path="/batting" element={<BattingStats />} />
         <Route path="/bowling" element={<BowlingStats />} />
+        <Route path="/head-to-head" element={<HeadToHead />} />
         <Route path="/players" element={<Players />} />
         <Route path="/matches" element={<Matches />} />
         <Route path="/admin" element={<Admin />} />
