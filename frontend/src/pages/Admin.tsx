@@ -87,6 +87,7 @@ export function Admin() {
   const [uploadCustomName, setUploadCustomName] = useState('')
   const [uploadInProgress, setUploadInProgress] = useState(false)
   const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null)
+  const [uploadError, setUploadError] = useState<string | null>(null)
 
   async function fetchFiles() {
     setLoading(true)
@@ -231,6 +232,7 @@ export function Admin() {
     if (!uploadFile) return
     setUploadInProgress(true)
     setUploadProgress(null)
+    setUploadError(null)
     try {
       await uploadAdminFile(
         uploadFile,
@@ -241,9 +243,11 @@ export function Admin() {
       setUploadFile(null)
       setUploadCustomName('')
       setUploadProgress(null)
+      setUploadError(null)
       await fetchFiles()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to upload file')
+      // Show error inside the modal, not behind it
+      setUploadError(err instanceof Error ? err.message : 'Failed to upload file')
     } finally {
       setUploadInProgress(false)
     }
@@ -869,6 +873,7 @@ export function Admin() {
                       setUploadFile(null)
                       setUploadCustomName('')
                       setUploadProgress(null)
+                      setUploadError(null)
                     }
                   }}
                   disabled={uploadInProgress}
@@ -878,6 +883,16 @@ export function Admin() {
                 </button>
               </div>
               <div className="p-4">
+                {/* Upload Error - shown inside modal */}
+                {uploadError && (
+                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm flex items-center justify-between">
+                    <span>{uploadError}</span>
+                    <button onClick={() => setUploadError(null)} className="text-red-500 hover:text-red-700 ml-2">
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
+
                 <div className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${uploadInProgress ? 'border-green-400 bg-green-50' : 'border-slate-300 hover:border-green-400'}`}>
                   <input
                     type="file"
@@ -950,6 +965,7 @@ export function Admin() {
                         setUploadFile(null)
                         setUploadCustomName('')
                         setUploadProgress(null)
+                        setUploadError(null)
                       }
                     }}
                     disabled={uploadInProgress}
