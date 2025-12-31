@@ -52,7 +52,7 @@ export function BattingStats() {
       try {
         const result = await executeQuery(`
           SELECT DISTINCT batting_team
-          FROM odi_t20
+          FROM ball_by_ball
           ORDER BY batting_team
         `)
         setTeams(result.rows.map(row => row[0] as string))
@@ -121,7 +121,7 @@ export function BattingStats() {
               THEN ROUND((SUM(CASE WHEN runs_off_bat = 4 THEN 4 ELSE 0 END) + SUM(CASE WHEN runs_off_bat = 6 THEN 6 ELSE 0 END)) * 100.0 / SUM(runs_off_bat), 1)
               ELSE 0
             END as boundary_pct
-          FROM odi_t20
+          FROM ball_by_ball
           ${whereClause}
           GROUP BY striker
           HAVING COUNT(DISTINCT match_id) >= ${minMatches}
@@ -326,6 +326,7 @@ export function BattingStats() {
                 <option value="All">All</option>
                 <option value="ODI">ODI</option>
                 <option value="T20">T20</option>
+                <option value="TEST">Test</option>
               </select>
             </div>
 

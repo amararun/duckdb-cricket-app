@@ -52,7 +52,7 @@ export function BowlingStats() {
       try {
         const result = await executeQuery(`
           SELECT DISTINCT bowling_team
-          FROM odi_t20
+          FROM ball_by_ball
           ORDER BY bowling_team
         `)
         setTeams(result.rows.map(row => row[0] as string))
@@ -115,7 +115,7 @@ export function BowlingStats() {
             ROUND(SUM(CASE WHEN runs_off_bat = 0 AND wides = 0 AND noballs = 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) as dot_pct,
             SUM(CASE WHEN runs_off_bat = 4 THEN 1 ELSE 0 END) as fours,
             SUM(CASE WHEN runs_off_bat = 6 THEN 1 ELSE 0 END) as sixes
-          FROM odi_t20
+          FROM ball_by_ball
           ${whereClause}
           GROUP BY bowler
           HAVING COUNT(DISTINCT match_id) >= ${minMatches}
@@ -328,6 +328,7 @@ export function BowlingStats() {
                 <option value="All">All</option>
                 <option value="ODI">ODI</option>
                 <option value="T20">T20</option>
+                <option value="TEST">Test</option>
               </select>
             </div>
 
