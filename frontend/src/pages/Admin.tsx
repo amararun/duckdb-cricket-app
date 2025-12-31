@@ -253,9 +253,9 @@ export function Admin() {
     }
   }
 
-  // Cloudflare free tier has 100MB upload limit
-  // Files larger than this will fail as Cloudflare terminates the connection
-  const MAX_FILE_SIZE = 100 * 1024 * 1024 // 100MB (Cloudflare free tier limit)
+  // Direct upload via duckdb-upload subdomain bypasses Cloudflare proxy
+  // Backend limit is 500MB (set in MAX_UPLOAD_SIZE env var)
+  const MAX_FILE_SIZE = 500 * 1024 * 1024 // 500MB
 
   function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -916,7 +916,7 @@ export function Admin() {
                     ) : (
                       <div>
                         <p className="text-slate-700">Click to select a DuckDB file</p>
-                        <p className="text-sm text-slate-500">Max size: 100 MB</p>
+                        <p className="text-sm text-slate-500">Max size: {MAX_FILE_SIZE / (1024 * 1024)} MB</p>
                       </div>
                     )}
                   </label>

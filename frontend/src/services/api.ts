@@ -201,8 +201,9 @@ export async function uploadAdminFileDirect(
   const tokenResponse = await getUploadToken(filename, file.size);
 
   // Step 2: Upload directly to backend using the token (bypasses Vercel)
-  // The backend URL is derived from the token response upload_url
-  const backendUrl = DEV_BACKEND_URL || 'https://duckdb-cricket-backend.tigzig.com';
+  // Use duckdb-upload subdomain which bypasses Cloudflare proxy (DNS only)
+  // This avoids Cloudflare's 100MB upload limit on free tier
+  const backendUrl = DEV_BACKEND_URL || 'https://duckdb-upload.tigzig.com';
   const uploadUrl = `${backendUrl}${tokenResponse.upload_url}`;
 
   const formData = new FormData();
