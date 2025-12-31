@@ -253,13 +253,15 @@ export function Admin() {
     }
   }
 
-  const MAX_FILE_SIZE = 500 * 1024 * 1024 // 500MB limit (direct upload bypasses Vercel limit)
+  // Cloudflare free tier has 100MB upload limit
+  // Files larger than this will fail as Cloudflare terminates the connection
+  const MAX_FILE_SIZE = 100 * 1024 * 1024 // 100MB (Cloudflare free tier limit)
 
   function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (file) {
       if (file.size > MAX_FILE_SIZE) {
-        setError(`File too large (${(file.size / (1024 * 1024)).toFixed(1)} MB). Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)} MB.`)
+        setUploadError(`File too large (${(file.size / (1024 * 1024)).toFixed(1)} MB). Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)} MB due to Cloudflare limits.`)
         return
       }
       setUploadFile(file)
@@ -914,7 +916,7 @@ export function Admin() {
                     ) : (
                       <div>
                         <p className="text-slate-700">Click to select a DuckDB file</p>
-                        <p className="text-sm text-slate-500">Max size: 500 MB</p>
+                        <p className="text-sm text-slate-500">Max size: 100 MB</p>
                       </div>
                     )}
                   </label>
