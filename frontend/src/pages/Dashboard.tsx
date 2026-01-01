@@ -8,7 +8,9 @@ import {
   ChevronDown,
   ChevronUp,
   TrendingUp,
-  Shield
+  Shield,
+  Info,
+  X
 } from 'lucide-react'
 import { executeQuery } from '../services/api'
 
@@ -64,6 +66,7 @@ export function Dashboard() {
   // UI states
   const [showAllMatches, setShowAllMatches] = useState(false)
   const [winRatesLoading, setWinRatesLoading] = useState(false)
+  const [showInfo, setShowInfo] = useState(false)
 
   // Fetch dashboard stats from match_info table
   useEffect(() => {
@@ -254,13 +257,112 @@ export function Dashboard() {
   return (
     <div className="flex-1 p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Page Title */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-slate-800">Cricket Analytics Dashboard</h1>
-          <p className="text-base text-slate-600 mt-1">
-            Match statistics and team performance analytics
-          </p>
+        {/* Page Title with Info Button */}
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-800">Cricket Analytics Dashboard</h1>
+            <p className="text-base text-slate-600 mt-1">
+              Match statistics and team performance analytics
+            </p>
+          </div>
+          <button
+            onClick={() => setShowInfo(true)}
+            className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg"
+            title="Dashboard info"
+          >
+            <Info className="h-5 w-5" />
+          </button>
         </div>
+
+        {/* Info Modal */}
+        {showInfo && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-indigo-50">
+                <h2 className="text-xl font-bold text-slate-800">Dashboard - Data Overview</h2>
+                <button
+                  onClick={() => setShowInfo(false)}
+                  className="p-1 rounded hover:bg-indigo-100 text-slate-600 transition-colors"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+              <div className="px-6 py-4 overflow-y-auto max-h-[60vh]">
+                <h3 className="font-bold text-slate-800 mb-3">Data Source</h3>
+                <p className="text-base text-slate-700 mb-4">
+                  This dashboard displays international cricket match data including Test, ODI, and T20 formats.
+                  Data is sourced from ball-by-ball records covering matches from 2002 to present.
+                </p>
+
+                <h3 className="font-bold text-slate-800 mb-3">Stats Cards</h3>
+                <table className="w-full mb-4">
+                  <tbody className="text-base text-slate-700">
+                    <tr className="border-b border-slate-100">
+                      <td className="py-2 font-semibold">Total Matches</td>
+                      <td className="py-2">All matches in the database across all formats</td>
+                    </tr>
+                    <tr className="border-b border-slate-100">
+                      <td className="py-2 font-semibold">Test/ODI/T20</td>
+                      <td className="py-2">Match counts broken down by format</td>
+                    </tr>
+                    <tr className="border-b border-slate-100">
+                      <td className="py-2 font-semibold">Teams</td>
+                      <td className="py-2">Unique teams (includes Associate Nations)</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <h3 className="font-bold text-slate-800 mb-3">Team Win Rates</h3>
+                <table className="w-full mb-4">
+                  <tbody className="text-base text-slate-700">
+                    <tr className="border-b border-slate-100">
+                      <td className="py-2 font-semibold">Win Rate %</td>
+                      <td className="py-2">(Wins / Total Matches) × 100</td>
+                    </tr>
+                    <tr className="border-b border-slate-100">
+                      <td className="py-2 font-semibold">Filter</td>
+                      <td className="py-2">Only teams with 50+ matches shown</td>
+                    </tr>
+                    <tr className="border-b border-slate-100">
+                      <td className="py-2 font-semibold">Note</td>
+                      <td className="py-2">Win rate depends on opponent strength. Associate nations often have high rates against weaker opponents.</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <h3 className="font-bold text-slate-800 mb-3">Matches by Year</h3>
+                <p className="text-base text-slate-700 mb-4">
+                  Stacked bar chart showing the number of matches per year, broken down by format (Test, ODI, T20).
+                  Shows the last 15 years of data.
+                </p>
+
+                <h3 className="font-bold text-slate-800 mb-3">Recent Matches</h3>
+                <p className="text-base text-slate-700 mb-4">
+                  Lists the most recent matches with result details. Winner is determined from the <code className="bg-slate-100 px-1 rounded">match_info</code> table.
+                  Results show margin (runs or wickets).
+                </p>
+
+                <div className="mt-4 p-4 bg-slate-50 rounded-lg">
+                  <h3 className="font-bold text-slate-800 mb-2">Data Notes</h3>
+                  <ul className="text-base text-slate-600 space-y-1">
+                    <li>Data covers TEST, ODI, and T20 internationals</li>
+                    <li>Ball-by-ball records: ~4.4 million deliveries</li>
+                    <li>Match records: ~8,700 matches</li>
+                    <li>Use the filter buttons to view specific formats</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="px-6 py-4 border-t border-slate-200 bg-slate-50">
+                <button
+                  onClick={() => setShowInfo(false)}
+                  className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Filter Bar */}
         <div className="mb-6 flex items-center gap-4">
