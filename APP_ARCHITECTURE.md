@@ -58,8 +58,7 @@ frontend/
 │       ├── HeadToHead.tsx   # Player vs player matchups
 │       ├── Players.tsx      # Player search
 │       ├── Matches.tsx      # Match browser
-│       ├── Schema.tsx       # DB schema viewer
-│       └── Admin.tsx        # File upload/management
+│       └── Schema.tsx       # DB schema viewer
 ```
 
 ## Routes
@@ -73,7 +72,6 @@ frontend/
 | `/players` | Players | Player search |
 | `/matches` | Matches | Match list |
 | `/schema` | Schema | Database schema |
-| `/admin` | Admin | File management |
 
 ## API Layer
 
@@ -88,14 +86,6 @@ getTables()              // List all tables
 getSchema(tableName)     // Get table columns
 ```
 
-### Admin Functions
-```typescript
-getAdminFiles()          // List uploaded .duckdb files
-uploadAdminFile(file)    // Upload new database
-deleteAdminFile(name)    // Delete database
-shareAdminFile(name)     // Generate share link
-```
-
 ## Backend Endpoints
 
 **Base URL:** `https://duckdb.tigzig.com`
@@ -105,9 +95,6 @@ shareAdminFile(name)     // Generate share link
 | `/?action=query` | POST | Execute SQL query |
 | `/?action=tables` | GET | List tables |
 | `/?action=schema&table=X` | GET | Get table schema |
-| `/?action=admin-files` | GET | List files |
-| `/?action=admin-upload` | POST | Upload file |
-| `/?action=admin-share` | POST | Create share link |
 
 ## Key Formulas
 

@@ -1,4 +1,4 @@
-import { Trophy, Database, Settings, Users } from 'lucide-react'
+import { Trophy, Database, Users } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 
 export function Header() {
@@ -97,21 +97,7 @@ export function Header() {
         {/* Spacer */}
         <div className="flex-1" />
 
-        {/* Admin button */}
-        <Link
-          to="/admin"
-          className={`px-3 py-1 rounded-md text-sm font-medium transition-colors flex items-center gap-1 ${
-            isActive('/admin')
-              ? 'bg-amber-600 text-white'
-              : 'text-amber-300 hover:bg-amber-700/50 hover:text-white'
-          }`}
-        >
-          <Settings className="h-4 w-4" />
-          Admin
-        </Link>
-
         {/* TIGZIG branding */}
-        <div className="hidden md:block h-4 w-px bg-indigo-300/20" />
         <span className="text-xs text-indigo-300">TIGZIG</span>
       </div>
     </div>
