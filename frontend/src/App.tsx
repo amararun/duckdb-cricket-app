@@ -1,28 +1,52 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import { Header } from './components/layout/Header'
 import { Footer } from './components/layout/Footer'
-import { Dashboard } from './pages/Dashboard'
-import { Players } from './pages/Players'
-import { Matches } from './pages/Matches'
-import { Schema } from './pages/Schema'
-import { BattingStats } from './pages/BattingStats'
-import { BowlingStats } from './pages/BowlingStats'
-import { HeadToHead } from './pages/HeadToHead'
+
+// Landing page
+import { Landing } from './pages/Landing'
+
+// Cricket feature
+import {
+  CricketDashboard,
+  BattingStats,
+  BowlingStats,
+  HeadToHead,
+  CricketSchema
+} from './features/cricket'
+
+// IMDb feature
+import {
+  ImdbDashboard,
+  TopRated,
+  ActorSearch,
+  GenreAnalytics
+} from './features/imdb'
 
 function App() {
+  const location = useLocation()
+  const isLandingPage = location.pathname === '/'
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
-      <Header />
+      {!isLandingPage && <Header />}
       <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/schema" element={<Schema />} />
-        <Route path="/batting" element={<BattingStats />} />
-        <Route path="/bowling" element={<BowlingStats />} />
-        <Route path="/head-to-head" element={<HeadToHead />} />
-        <Route path="/players" element={<Players />} />
-        <Route path="/matches" element={<Matches />} />
+        {/* Landing */}
+        <Route path="/" element={<Landing />} />
+
+        {/* Cricket Routes */}
+        <Route path="/cricket" element={<CricketDashboard />} />
+        <Route path="/cricket/batting" element={<BattingStats />} />
+        <Route path="/cricket/bowling" element={<BowlingStats />} />
+        <Route path="/cricket/head-to-head" element={<HeadToHead />} />
+        <Route path="/cricket/schema" element={<CricketSchema />} />
+
+        {/* IMDb Routes */}
+        <Route path="/imdb" element={<ImdbDashboard />} />
+        <Route path="/imdb/top-rated" element={<TopRated />} />
+        <Route path="/imdb/actors" element={<ActorSearch />} />
+        <Route path="/imdb/genres" element={<GenreAnalytics />} />
       </Routes>
-      <Footer />
+      {!isLandingPage && <Footer />}
     </div>
   )
 }

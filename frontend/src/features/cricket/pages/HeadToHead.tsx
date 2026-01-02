@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { executeQuery } from '../services/api'
+import { executeQuery } from '../../../services/api'
 import { Loader2, ChevronUp, ChevronDown, Search, Users, Target, Info, X } from 'lucide-react'
 
 interface MatchupRow {

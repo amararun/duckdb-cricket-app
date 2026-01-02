@@ -1,27 +1,27 @@
 import { useState, useEffect } from 'react'
-import { executeQuery } from '../services/api'
+import { executeQuery } from '../../../services/api'
 import { Loader2, ChevronUp, ChevronDown, Filter, Info, X } from 'lucide-react'
 
-interface BattingStatsRow {
-  player: string
+interface BowlingStatsRow {
+  bowler: string
   matches: number
-  innings: number
+  balls: number
+  overs: number
   runs: number
-  balls_faced: number
-  dismissals: number
-  not_outs: number
+  wickets: number
+  economy: number
   average: number
   strike_rate: number
+  dot_pct: number
   fours: number
   sixes: number
-  boundary_pct: number
 }
 
-type SortField = keyof BattingStatsRow
+type SortField = keyof BowlingStatsRow
 type SortDirection = 'asc' | 'desc'
 
-export function BattingStats() {
-  const [data, setData] = useState<BattingStatsRow[]>([])
+export function BowlingStats() {
+  const [data, setData] = useState<BowlingStatsRow[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -36,7 +36,7 @@ export function BattingStats() {
   const [teams, setTeams] = useState<string[]>([])
 
   // Sorting
-  const [sortField, setSortField] = useState<SortField>('runs')
+  const [sortField, setSortField] = useState<SortField>('wickets')
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
 
   // Pagination
@@ -51,9 +51,9 @@ export function BattingStats() {
     async function fetchTeams() {
       try {
         const result = await executeQuery(`
-          SELECT DISTINCT batting_team
+          SELECT DISTINCT bowling_team
           FROM ball_by_ball
-          ORDER BY batting_team
+          ORDER BY bowling_team
         `)
         setTeams(result.rows.map(row => row[0] as string))
       } catch (err) {
@@ -63,7 +63,7 @@ export function BattingStats() {
     fetchTeams()
   }, [])
 
-  // Fetch batting stats
+  // Fetch bowling stats
   useEffect(() => {
     async function fetchData() {
       setLoading(true)
@@ -82,7 +82,7 @@ export function BattingStats() {
         conditions.push(`EXTRACT(YEAR FROM start_date) <= ${yearTo}`)
 
         if (team !== 'All') {
-          conditions.push(`batting_team = '${team}'`)
+          conditions.push(`bowling_team = '${team}'`)
         }
 
         const whereClause = conditions.length > 0
@@ -91,59 +91,53 @@ export function BattingStats() {
 
         const sql = `
           SELECT
-            striker as player,
+            bowler,
             COUNT(DISTINCT match_id) as matches,
-            COUNT(DISTINCT match_id) as innings,
-            CAST(SUM(runs_off_bat) AS INTEGER) as runs,
-            COUNT(*) as balls_faced,
+            COUNT(*) as balls,
+            ROUND(COUNT(*) / 6.0, 1) as overs,
+            CAST(SUM(runs_off_bat + wides + noballs) AS INTEGER) as runs,
             SUM(CASE
               WHEN wicket_type IS NOT NULL
-                AND player_dismissed = striker
-                AND wicket_type NOT IN ('retired hurt', 'retired not out')
+                AND wicket_type NOT IN ('run out', 'retired hurt', 'retired not out', 'retired out', 'obstructing the field')
               THEN 1 ELSE 0
-            END) as dismissals,
-            COUNT(DISTINCT match_id) - SUM(CASE
-              WHEN wicket_type IS NOT NULL
-                AND player_dismissed = striker
-                AND wicket_type NOT IN ('retired hurt', 'retired not out')
-              THEN 1 ELSE 0
-            END) as not_outs,
+            END) as wickets,
+            ROUND(CAST(SUM(runs_off_bat + wides + noballs) AS DOUBLE) / (COUNT(*) / 6.0), 2) as economy,
             CASE
-              WHEN SUM(CASE WHEN wicket_type IS NOT NULL AND player_dismissed = striker AND wicket_type NOT IN ('retired hurt', 'retired not out') THEN 1 ELSE 0 END) > 0
-              THEN ROUND(CAST(SUM(runs_off_bat) AS DOUBLE) / SUM(CASE WHEN wicket_type IS NOT NULL AND player_dismissed = striker AND wicket_type NOT IN ('retired hurt', 'retired not out') THEN 1 ELSE 0 END), 2)
-              ELSE CAST(SUM(runs_off_bat) AS DOUBLE)
-            END as average,
-            ROUND(CAST(SUM(runs_off_bat) AS DOUBLE) / COUNT(*) * 100, 2) as strike_rate,
-            SUM(CASE WHEN runs_off_bat = 4 THEN 1 ELSE 0 END) as fours,
-            SUM(CASE WHEN runs_off_bat = 6 THEN 1 ELSE 0 END) as sixes,
-            CASE
-              WHEN SUM(runs_off_bat) > 0
-              THEN ROUND((SUM(CASE WHEN runs_off_bat = 4 THEN 4 ELSE 0 END) + SUM(CASE WHEN runs_off_bat = 6 THEN 6 ELSE 0 END)) * 100.0 / SUM(runs_off_bat), 1)
+              WHEN SUM(CASE WHEN wicket_type IS NOT NULL AND wicket_type NOT IN ('run out', 'retired hurt', 'retired not out', 'retired out', 'obstructing the field') THEN 1 ELSE 0 END) > 0
+              THEN ROUND(CAST(SUM(runs_off_bat + wides + noballs) AS DOUBLE) / SUM(CASE WHEN wicket_type IS NOT NULL AND wicket_type NOT IN ('run out', 'retired hurt', 'retired not out', 'retired out', 'obstructing the field') THEN 1 ELSE 0 END), 2)
               ELSE 0
-            END as boundary_pct
+            END as average,
+            CASE
+              WHEN SUM(CASE WHEN wicket_type IS NOT NULL AND wicket_type NOT IN ('run out', 'retired hurt', 'retired not out', 'retired out', 'obstructing the field') THEN 1 ELSE 0 END) > 0
+              THEN ROUND(CAST(COUNT(*) AS DOUBLE) / SUM(CASE WHEN wicket_type IS NOT NULL AND wicket_type NOT IN ('run out', 'retired hurt', 'retired not out', 'retired out', 'obstructing the field') THEN 1 ELSE 0 END), 1)
+              ELSE 0
+            END as strike_rate,
+            ROUND(SUM(CASE WHEN runs_off_bat = 0 AND wides = 0 AND noballs = 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) as dot_pct,
+            SUM(CASE WHEN runs_off_bat = 4 THEN 1 ELSE 0 END) as fours,
+            SUM(CASE WHEN runs_off_bat = 6 THEN 1 ELSE 0 END) as sixes
           FROM ball_by_ball
           ${whereClause}
-          GROUP BY striker
+          GROUP BY bowler
           HAVING COUNT(DISTINCT match_id) >= ${minMatches}
-          ORDER BY runs DESC
+          ORDER BY wickets DESC
           LIMIT 500
         `
 
         const result = await executeQuery(sql)
 
-        const rows: BattingStatsRow[] = result.rows.map(row => ({
-          player: row[0] as string ?? '',
+        const rows: BowlingStatsRow[] = result.rows.map(row => ({
+          bowler: row[0] as string ?? '',
           matches: (row[1] as number) ?? 0,
-          innings: (row[2] as number) ?? 0,
-          runs: (row[3] as number) ?? 0,
-          balls_faced: (row[4] as number) ?? 0,
-          dismissals: (row[5] as number) ?? 0,
-          not_outs: (row[6] as number) ?? 0,
+          balls: (row[2] as number) ?? 0,
+          overs: (row[3] as number) ?? 0,
+          runs: (row[4] as number) ?? 0,
+          wickets: (row[5] as number) ?? 0,
+          economy: (row[6] as number) ?? 0,
           average: (row[7] as number) ?? 0,
           strike_rate: (row[8] as number) ?? 0,
-          fours: (row[9] as number) ?? 0,
-          sixes: (row[10] as number) ?? 0,
-          boundary_pct: (row[11] as number) ?? 0,
+          dot_pct: (row[9] as number) ?? 0,
+          fours: (row[10] as number) ?? 0,
+          sixes: (row[11] as number) ?? 0,
         }))
 
         setData(rows)
@@ -182,7 +176,12 @@ export function BattingStats() {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
     } else {
       setSortField(field)
-      setSortDirection('desc')
+      // For bowling, lower is better for economy/average/strike_rate
+      if (field === 'economy' || field === 'average' || field === 'strike_rate') {
+        setSortDirection('asc')
+      } else {
+        setSortDirection('desc')
+      }
     }
   }
 
@@ -207,7 +206,7 @@ export function BattingStats() {
       <div className="max-w-7xl mx-auto">
         {/* Page Title with Info Button */}
         <div className="flex items-center gap-3 mb-4">
-          <h1 className="text-2xl font-bold text-slate-800">Batting Statistics</h1>
+          <h1 className="text-2xl font-bold text-slate-800">Bowling Statistics</h1>
           <button
             onClick={() => setShowInfo(true)}
             className="p-1.5 rounded-full bg-indigo-100 hover:bg-indigo-200 text-indigo-700 transition-colors"
@@ -222,7 +221,7 @@ export function BattingStats() {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
               <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-indigo-50">
-                <h2 className="text-xl font-bold text-slate-800">Batting Statistics - Metric Definitions</h2>
+                <h2 className="text-xl font-bold text-slate-800">Bowling Statistics - Metric Definitions</h2>
                 <button
                   onClick={() => setShowInfo(false)}
                   className="p-1 rounded hover:bg-indigo-100 text-slate-600 transition-colors"
@@ -241,52 +240,55 @@ export function BattingStats() {
                   <tbody className="text-base text-slate-700">
                     <tr className="border-b border-slate-100">
                       <td className="py-3 font-semibold">Mat</td>
-                      <td className="py-3">Matches played (appearances as batsman)</td>
+                      <td className="py-3">Matches bowled in</td>
                     </tr>
                     <tr className="border-b border-slate-100">
-                      <td className="py-3 font-semibold">Inns</td>
-                      <td className="py-3">Innings batted (currently same as matches)</td>
+                      <td className="py-3 font-semibold">Overs</td>
+                      <td className="py-3">Total overs bowled (Balls / 6)</td>
                     </tr>
                     <tr className="border-b border-slate-100">
                       <td className="py-3 font-semibold">Runs</td>
-                      <td className="py-3">Total runs scored off the bat. Excludes extras (wides, byes, etc.)</td>
+                      <td className="py-3">Runs conceded = runs off bat + wides + no-balls. Excludes byes and leg-byes (not bowler's fault)</td>
                     </tr>
                     <tr className="border-b border-slate-100">
-                      <td className="py-3 font-semibold">BF</td>
-                      <td className="py-3">Balls Faced - total deliveries received</td>
+                      <td className="py-3 font-semibold">Wkts</td>
+                      <td className="py-3">Wickets taken. Includes: caught, bowled, lbw, stumped, caught & bowled, hit wicket. Excludes: run outs</td>
                     </tr>
                     <tr className="border-b border-slate-100">
-                      <td className="py-3 font-semibold">Outs</td>
-                      <td className="py-3">Dismissals (caught, bowled, lbw, run out, stumped, etc.). Excludes retired hurt/not out</td>
+                      <td className="py-3 font-semibold text-emerald-700">Econ</td>
+                      <td className="py-3"><strong>Economy Rate</strong> = Runs / Overs. Runs conceded per over. <em>Lower is better.</em></td>
                     </tr>
                     <tr className="border-b border-slate-100">
-                      <td className="py-3 font-semibold">NO</td>
-                      <td className="py-3">Not Outs - innings where batsman remained unbeaten</td>
+                      <td className="py-3 font-semibold text-blue-700">Avg</td>
+                      <td className="py-3"><strong>Bowling Average</strong> = Runs / Wickets. Runs conceded per wicket. <em>Lower is better.</em></td>
                     </tr>
                     <tr className="border-b border-slate-100">
-                      <td className="py-3 font-semibold text-emerald-700">Avg</td>
-                      <td className="py-3"><strong>Batting Average</strong> = Runs / Dismissals. Key performance metric. Higher is better.</td>
+                      <td className="py-3 font-semibold">SR</td>
+                      <td className="py-3"><strong>Strike Rate</strong> = Balls / Wickets. Balls bowled per wicket. <em>Lower is better.</em></td>
                     </tr>
                     <tr className="border-b border-slate-100">
-                      <td className="py-3 font-semibold text-blue-700">SR</td>
-                      <td className="py-3"><strong>Strike Rate</strong> = (Runs / Balls) x 100. Runs scored per 100 balls. Higher means faster scoring.</td>
+                      <td className="py-3 font-semibold">Dot%</td>
+                      <td className="py-3"><strong>Dot Ball Percentage</strong> = balls with 0 runs (no wides/no-balls). Measures pressure on batsmen.</td>
                     </tr>
                     <tr className="border-b border-slate-100">
                       <td className="py-3 font-semibold">4s</td>
-                      <td className="py-3">Number of boundaries (4 runs) hit</td>
-                    </tr>
-                    <tr className="border-b border-slate-100">
-                      <td className="py-3 font-semibold">6s</td>
-                      <td className="py-3">Number of sixes (over the boundary) hit</td>
+                      <td className="py-3">Boundaries (fours) conceded</td>
                     </tr>
                     <tr>
-                      <td className="py-3 font-semibold">Bnd%</td>
-                      <td className="py-3"><strong>Boundary Percentage</strong> = (4s x 4 + 6s x 6) / Runs x 100. Percentage of runs from boundaries.</td>
+                      <td className="py-3 font-semibold">6s</td>
+                      <td className="py-3">Sixes conceded</td>
                     </tr>
                   </tbody>
                 </table>
 
-                <div className="mt-6 p-4 bg-slate-50 rounded-lg">
+                <div className="mt-6 p-4 bg-amber-50 rounded-lg border border-amber-200">
+                  <h3 className="font-bold text-slate-800 mb-2">Bowling vs Batting Metrics</h3>
+                  <p className="text-base text-slate-600">
+                    For bowlers, <strong>lower</strong> values are better for Economy, Average, and Strike Rate - opposite of batting!
+                  </p>
+                </div>
+
+                <div className="mt-4 p-4 bg-slate-50 rounded-lg">
                   <h3 className="font-bold text-slate-800 mb-2">Data Notes</h3>
                   <ul className="text-base text-slate-600 space-y-1">
                     <li>Data covers ODI and T20 internationals from 2002-2025</li>
@@ -395,7 +397,7 @@ export function BattingStats() {
         {/* Results Info */}
         <div className="flex justify-between items-center mb-3">
           <span className="text-sm text-slate-600">
-            {loading ? 'Loading...' : `${data.length} players found`}
+            {loading ? 'Loading...' : `${data.length} bowlers found`}
           </span>
           {totalPages > 1 && (
             <div className="flex items-center gap-2">
@@ -425,7 +427,7 @@ export function BattingStats() {
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
-              <span className="ml-3 text-slate-600">Loading batting statistics...</span>
+              <span className="ml-3 text-slate-600">Loading bowling statistics...</span>
             </div>
           ) : error ? (
             <div className="p-6 text-center text-red-600">
@@ -437,24 +439,23 @@ export function BattingStats() {
                 <thead>
                   <tr className="border-b border-slate-300">
                     <th className="px-3 py-3 text-left text-base font-bold text-slate-800 bg-slate-200 sticky left-0">#</th>
-                    {columnHeader('player', 'Player', 'left')}
+                    {columnHeader('bowler', 'Bowler', 'left')}
                     {columnHeader('matches', 'Mat')}
-                    {columnHeader('innings', 'Inns')}
+                    {columnHeader('overs', 'Overs')}
                     {columnHeader('runs', 'Runs')}
-                    {columnHeader('balls_faced', 'BF')}
-                    {columnHeader('dismissals', 'Outs')}
-                    {columnHeader('not_outs', 'NO')}
+                    {columnHeader('wickets', 'Wkts')}
+                    {columnHeader('economy', 'Econ')}
                     {columnHeader('average', 'Avg')}
                     {columnHeader('strike_rate', 'SR')}
+                    {columnHeader('dot_pct', 'Dot%')}
                     {columnHeader('fours', '4s')}
                     {columnHeader('sixes', '6s')}
-                    {columnHeader('boundary_pct', 'Bnd%')}
                   </tr>
                 </thead>
                 <tbody>
                   {paginatedData.map((row, idx) => (
                     <tr
-                      key={row.player}
+                      key={row.bowler}
                       className={`border-b border-slate-100 hover:bg-indigo-50 transition-colors ${
                         idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'
                       }`}
@@ -463,19 +464,18 @@ export function BattingStats() {
                         {(page - 1) * rowsPerPage + idx + 1}
                       </td>
                       <td className="px-3 py-2 text-base font-semibold text-slate-800 whitespace-nowrap">
-                        {row.player}
+                        {row.bowler}
                       </td>
                       <td className="px-3 py-2 text-base font-medium text-slate-700 text-right">{row.matches}</td>
-                      <td className="px-3 py-2 text-base font-medium text-slate-700 text-right">{row.innings}</td>
-                      <td className="px-3 py-2 text-base font-semibold text-slate-800 text-right">{row.runs.toLocaleString()}</td>
-                      <td className="px-3 py-2 text-base font-medium text-slate-700 text-right">{row.balls_faced.toLocaleString()}</td>
-                      <td className="px-3 py-2 text-base font-medium text-slate-700 text-right">{row.dismissals}</td>
-                      <td className="px-3 py-2 text-base font-medium text-slate-700 text-right">{row.not_outs}</td>
-                      <td className="px-3 py-2 text-base font-semibold text-emerald-700 text-right">{row.average.toFixed(2)}</td>
-                      <td className="px-3 py-2 text-base font-medium text-blue-700 text-right">{row.strike_rate.toFixed(2)}</td>
+                      <td className="px-3 py-2 text-base font-medium text-slate-700 text-right">{row.overs}</td>
+                      <td className="px-3 py-2 text-base font-medium text-slate-700 text-right">{row.runs.toLocaleString()}</td>
+                      <td className="px-3 py-2 text-base font-semibold text-slate-800 text-right">{row.wickets}</td>
+                      <td className="px-3 py-2 text-base font-semibold text-emerald-700 text-right">{row.economy.toFixed(2)}</td>
+                      <td className="px-3 py-2 text-base font-medium text-blue-700 text-right">{row.average.toFixed(2)}</td>
+                      <td className="px-3 py-2 text-base font-medium text-slate-700 text-right">{row.strike_rate.toFixed(1)}</td>
+                      <td className="px-3 py-2 text-base font-medium text-slate-600 text-right">{row.dot_pct.toFixed(1)}%</td>
                       <td className="px-3 py-2 text-base font-medium text-slate-700 text-right">{row.fours}</td>
                       <td className="px-3 py-2 text-base font-medium text-slate-700 text-right">{row.sixes}</td>
-                      <td className="px-3 py-2 text-base font-medium text-slate-600 text-right">{row.boundary_pct.toFixed(1)}%</td>
                     </tr>
                   ))}
                 </tbody>

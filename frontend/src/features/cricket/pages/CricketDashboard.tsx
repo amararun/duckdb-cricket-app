@@ -12,7 +12,7 @@ import {
   Info,
   X
 } from 'lucide-react'
-import { executeQuery } from '../services/api'
+import { executeQuery } from '../../../services/api'
 
 // Types
 interface DashboardStats {
@@ -52,7 +52,7 @@ interface YearlyMatches {
   total: number
 }
 
-export function Dashboard() {
+export function CricketDashboard() {
   const [matchType, setMatchType] = useState<'All' | 'ODI' | 'T20' | 'TEST'>('All')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

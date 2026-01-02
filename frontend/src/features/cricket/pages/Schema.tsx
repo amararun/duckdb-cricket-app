@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Database, Table, AlertCircle, Loader2 } from 'lucide-react'
-import { getTables, getSchema, getTableSample } from '../services/api'
+import { getTables, getSchema, getTableSample } from '../../../services/api'
 
 interface SchemaColumn {
   column_name: string
