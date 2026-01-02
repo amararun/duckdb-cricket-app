@@ -47,3 +47,5 @@ explore.py
 
 .vercel
 .env*.local
+
+.env*.local

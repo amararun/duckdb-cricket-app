@@ -1,0 +1,255 @@
+============================================================
+IMDb DuckDB - Exploratory Data Analysis
+============================================================
+
+## Table Row Counts
+----------------------------------------
+title_basics: 12,192,621 rows
+title_ratings: 1,618,067 rows
+name_basics: 14,982,442 rows
+
+## Title Types Distribution (Top 10)
+----------------------------------------
+tvEpisode: 9,406,774
+short: 1,102,539
+movie: 735,687
+video: 320,187
+tvSeries: 292,575
+tvMovie: 153,496
+tvMiniSeries: 67,249
+tvSpecial: 56,377
+videoGame: 46,862
+tvShort: 10,874
+
+## Movies by Decade
+----------------------------------------
+1900s: 8
+1901s: 7
+1902s: 3
+1903s: 4
+1904s: 2
+1905s: 17
+1906s: 22
+1907s: 17
+1908s: 20
+1909s: 84
+1910s: 101
+1911s: 156
+1912s: 321
+1913s: 661
+1914s: 1,138
+1915s: 1,611
+1916s: 2,106
+1917s: 2,186
+1918s: 2,245
+1919s: 2,470
+1920s: 2,651
+1921s: 2,623
+1922s: 2,189
+1923s: 1,940
+1924s: 1,946
+1925s: 2,121
+1926s: 2,099
+1927s: 2,211
+1928s: 2,188
+1929s: 2,131
+1930s: 2,048
+1931s: 2,141
+1932s: 2,138
+1933s: 2,032
+1934s: 1,951
+1935s: 1,983
+1936s: 2,244
+1937s: 2,150
+1938s: 1,996
+1939s: 1,908
+1940s: 1,784
+1941s: 1,553
+1942s: 1,470
+1943s: 1,336
+1944s: 1,172
+1945s: 1,137
+1946s: 1,316
+1947s: 1,528
+1948s: 1,654
+1949s: 1,801
+1950s: 2,012
+1951s: 1,983
+1952s: 2,154
+1953s: 2,246
+1954s: 2,302
+1955s: 2,396
+1956s: 2,620
+1957s: 2,665
+1958s: 2,749
+1959s: 2,768
+1960s: 2,933
+1961s: 2,974
+1962s: 2,851
+1963s: 2,769
+1964s: 2,974
+1965s: 3,220
+1966s: 3,243
+1967s: 3,322
+1968s: 3,711
+1969s: 3,907
+1970s: 4,176
+1971s: 4,189
+1972s: 4,103
+1973s: 4,008
+1974s: 3,844
+1975s: 4,123
+1976s: 3,982
+1977s: 3,907
+1978s: 4,082
+1979s: 4,191
+1980s: 4,159
+1981s: 4,151
+1982s: 4,169
+1983s: 4,303
+1984s: 4,488
+1985s: 4,610
+1986s: 4,518
+1987s: 4,592
+1988s: 4,689
+1989s: 4,724
+1990s: 4,975
+1991s: 4,515
+1992s: 4,516
+1993s: 4,272
+1994s: 4,268
+1995s: 4,493
+1996s: 4,413
+1997s: 4,779
+1998s: 4,921
+1999s: 5,124
+2000s: 5,332
+2001s: 5,731
+2002s: 5,958
+2003s: 6,274
+2004s: 6,869
+2005s: 7,892
+2006s: 8,479
+2007s: 9,273
+2008s: 10,735
+2009s: 12,187
+2010s: 13,033
+2011s: 13,986
+2012s: 15,055
+2013s: 15,723
+2014s: 16,911
+2015s: 17,541
+2016s: 18,744
+2017s: 19,224
+2018s: 19,522
+2019s: 19,482
+2020s: 16,785
+2021s: 19,253
+2022s: 21,068
+2023s: 21,104
+2024s: 20,975
+2025s: 19,216
+2026s: 2,559
+2027s: 80
+2028s: 9
+2029s: 3
+2031s: 1
+
+## Rating Statistics
+----------------------------------------
+Total rated titles: 1,618,067
+Average rating: 6.97
+Rating range: 1.0 - 10.0
+Average votes: 1,040
+Max votes: 3,138,011
+
+## Top 10 Highest Rated Movies (100k+ votes)
+----------------------------------------
+1. The Shawshank Redemption (1994) - 9.3 (3,138,011 votes)
+2. The Godfather (1972) - 9.2 (2,190,418 votes)
+3. The Dark Knight (2008) - 9.1 (3,114,183 votes)
+4. 12 Angry Men (1957) - 9.0 (965,871 votes)
+5. Schindler's List (1993) - 9.0 (1,565,360 votes)
+6. The Godfather Part II (1974) - 9.0 (1,472,478 votes)
+7. The Lord of the Rings: The Return of the King (2003) - 9.0 (2,131,274 votes)
+8. The Lord of the Rings: The Fellowship of the Ring (2001) - 8.9 (2,169,025 votes)
+9. Forrest Gump (1994) - 8.8 (2,453,594 votes)
+10. The Good, the Bad and the Ugly (1966) - 8.8 (880,051 votes)
+
+## Top 10 Most Voted Titles
+----------------------------------------
+1. The Shawshank Redemption (movie, 1994) - 3,138,011 votes, rating 9.3
+2. The Dark Knight (movie, 2008) - 3,114,183 votes, rating 9.1
+3. Inception (movie, 2010) - 2,767,665 votes, rating 8.8
+4. Fight Club (movie, 1999) - 2,553,278 votes, rating 8.8
+5. Game of Thrones (tvSeries, 2011) - 2,518,303 votes, rating 9.2
+6. Forrest Gump (movie, 1994) - 2,453,594 votes, rating 8.8
+7. Interstellar (movie, 2014) - 2,453,389 votes, rating 8.7
+8. Breaking Bad (tvSeries, 2008) - 2,451,736 votes, rating 9.5
+9. Pulp Fiction (movie, 1994) - 2,398,086 votes, rating 8.8
+10. The Matrix (movie, 1999) - 2,214,847 votes, rating 8.7
+
+## Genre Distribution (Top 15)
+----------------------------------------
+Drama: 1,356,113
+Comedy: 779,773
+Talk-Show: 762,108
+News: 691,961
+Documentary: 586,261
+Drama,Romance: 547,199
+Reality-TV: 386,045
+Adult: 338,779
+News,Talk-Show: 273,384
+Short: 236,223
+Drama,Short: 229,080
+Family: 212,990
+Game-Show: 200,456
+Comedy,Short: 169,294
+Documentary,Short: 168,517
+
+## People Statistics
+----------------------------------------
+Total people: 14,982,442
+With birth year: 662,389
+Deceased (has death year): 253,062
+
+## Primary Professions (Top 15)
+----------------------------------------
+actor: 2,630,812
+actress: 1,686,006
+miscellaneous: 631,867
+producer: 511,245
+camera_department: 458,882
+production_department: 258,237
+writer: 241,005
+sound_department: 231,427
+art_department: 230,084
+composer: 183,078
+make_up_department: 178,951
+music_department: 146,773
+visual_effects: 140,222
+animation_department: 134,708
+cinematographer: 130,327
+
+## Storage Size Comparison
+----------------------------------------
+
+### Source Files
+Raw TSV (uncompressed):     1,917.0 MB (1.87 GB)
+Gzipped TSV:                  496.5 MB
+
+### DuckDB Database
+With indexes + PKs:         3,083.0 MB
+Without indexes:              945.0 MB
+Index overhead:             2,138.0 MB (69.3% of indexed size)
+
+### Individual Source Files (Compressed)
+name.basics.tsv.gz:           282.8 MB
+title.basics.tsv.gz:          205.9 MB
+title.ratings.tsv.gz:           7.8 MB
+
+### Key Insights
+- DuckDB without indexes is 51% smaller than raw uncompressed TSV
+- DuckDB without indexes is 90% larger than gzipped TSV (but queryable!)
+- Primary keys + indexes add 2.1 GB overhead (69% of total DB size)
+- Trade-off: Faster queries vs storage space
