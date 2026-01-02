@@ -1,0 +1,12 @@
+# Ignore large data files
+projects/
+*.duckdb
+*.gz
+*.zip
+*.csv
+
+# Ignore dev files
+.env*
+!.env.example
+node_modules/
+.git/
