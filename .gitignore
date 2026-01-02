@@ -49,3 +49,4 @@ explore.py
 .env*.local
 
 .env*.local
+.vercel

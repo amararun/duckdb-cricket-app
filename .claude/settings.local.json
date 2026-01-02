@@ -24,7 +24,10 @@
       "Bash(nslookup:*)",
       "Bash(unzip:*)",
       "Bash(ssh 167.235.23.241-root \"cat /data/duckdb-datasets/file_metadata.json\")",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(Tigzig\"\nEOF\n\\)\")",
+      "Bash(npx clerk:*)",
+      "Bash(git remote set-url:*)"
     ]
   }
 }
