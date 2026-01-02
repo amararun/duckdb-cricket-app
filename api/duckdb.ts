@@ -1,8 +1,12 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 
 // Backend API configuration - these are SECRET, only in Vercel env vars
-const BACKEND_URL = process.env.DUCKDB_BACKEND_URL || 'https://duckdb-cricket-backend.tigzig.com'
-const BACKEND_API_KEY = process.env.DUCKDB_BACKEND_API_KEY || ''
+const BACKEND_URL = process.env.DUCKDB_BACKEND_URL || 'https://duckdb-backend.tigzig.com'
+const BACKEND_API_KEY = process.env.DUCKDB_BACKEND_API_KEY || ''  // Master admin key (for admin operations)
+
+// Per-file read tokens
+const CRICKET_READ_TOKEN = process.env.CRICKET_READ_TOKEN || ''
+const IMDB_READ_TOKEN = process.env.IMDB_READ_TOKEN || ''
 
 // CORS headers
 function setCors(res: VercelResponse) {
@@ -60,10 +64,52 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (req.method !== 'POST') {
           return res.status(405).json({ error: 'POST required for query' })
         }
-        backendUrl = `${BACKEND_URL}/api/v1/query`
+        // Use admin query endpoint with master key (legacy support)
+        backendUrl = `${BACKEND_URL}/api/v1/admin/query`
         method = 'POST'
         body = JSON.stringify(req.body)
         break
+
+      // Per-file query endpoints with read-only tokens
+      case 'cricket-query':
+        if (req.method !== 'POST') {
+          return res.status(405).json({ error: 'POST required for query' })
+        }
+        if (!CRICKET_READ_TOKEN) {
+          return res.status(500).json({ error: 'Cricket token not configured' })
+        }
+        {
+          const cricketResponse = await fetch(`${BACKEND_URL}/api/v1/files/cricket.duckdb/query`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${CRICKET_READ_TOKEN}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(req.body),
+          })
+          const cricketData = await cricketResponse.json()
+          return res.status(cricketResponse.status).json(cricketData)
+        }
+
+      case 'imdb-query':
+        if (req.method !== 'POST') {
+          return res.status(405).json({ error: 'POST required for query' })
+        }
+        if (!IMDB_READ_TOKEN) {
+          return res.status(500).json({ error: 'IMDb token not configured' })
+        }
+        {
+          const imdbResponse = await fetch(`${BACKEND_URL}/api/v1/files/imdb.duckdb/query`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${IMDB_READ_TOKEN}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(req.body),
+          })
+          const imdbData = await imdbResponse.json()
+          return res.status(imdbResponse.status).json(imdbData)
+        }
 
       // ============== Admin endpoints ==============
       case 'admin-files':

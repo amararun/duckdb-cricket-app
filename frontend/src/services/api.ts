@@ -59,6 +59,21 @@ export async function executeQuery(sql: string, limit?: number): Promise<QueryRe
   });
 }
 
+// Per-file query functions using read-only tokens
+export async function executeCricketQuery(sql: string, limit?: number): Promise<QueryResponse> {
+  return fetchApi('action=cricket-query', {
+    method: 'POST',
+    body: JSON.stringify({ sql, limit }),
+  });
+}
+
+export async function executeImdbQuery(sql: string, limit?: number): Promise<QueryResponse> {
+  return fetchApi('action=imdb-query', {
+    method: 'POST',
+    body: JSON.stringify({ sql, limit }),
+  });
+}
+
 export async function getTableSample(tableName: string, limit: number = 5): Promise<QueryResponse> {
   return executeQuery(`SELECT * FROM ${tableName} LIMIT ${limit}`);
 }

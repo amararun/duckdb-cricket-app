@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { executeQuery } from '../../../services/api'
+import { executeCricketQuery } from '../../../services/api'
 import { Loader2, ChevronUp, ChevronDown, Filter, Info, X } from 'lucide-react'
 
 interface BattingStatsRow {
@@ -50,7 +50,7 @@ export function BattingStats() {
   useEffect(() => {
     async function fetchTeams() {
       try {
-        const result = await executeQuery(`
+        const result = await executeCricketQuery(`
           SELECT DISTINCT batting_team
           FROM ball_by_ball
           ORDER BY batting_team
@@ -129,7 +129,7 @@ export function BattingStats() {
           LIMIT 500
         `
 
-        const result = await executeQuery(sql)
+        const result = await executeCricketQuery(sql)
 
         const rows: BattingStatsRow[] = result.rows.map(row => ({
           player: row[0] as string ?? '',

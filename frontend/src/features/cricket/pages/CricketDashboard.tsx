@@ -12,7 +12,7 @@ import {
   Info,
   X
 } from 'lucide-react'
-import { executeQuery } from '../../../services/api'
+import { executeCricketQuery } from '../../../services/api'
 
 // Types
 interface DashboardStats {
@@ -72,7 +72,7 @@ export function CricketDashboard() {
   useEffect(() => {
     async function fetchStats() {
       try {
-        const result = await executeQuery(`
+        const result = await executeCricketQuery(`
           SELECT
             COUNT(*) as total_matches,
             COUNT(CASE WHEN match_type = 'ODI' THEN 1 END) as odi_matches,
@@ -86,7 +86,7 @@ export function CricketDashboard() {
         `)
 
         // Get actual unique teams count
-        const teamsResult = await executeQuery(`
+        const teamsResult = await executeCricketQuery(`
           SELECT COUNT(DISTINCT team) as teams FROM (
             SELECT team1 as team FROM match_info
             UNION
@@ -123,7 +123,7 @@ export function CricketDashboard() {
       try {
         const typeFilter = matchType !== 'All' ? `WHERE match_type = '${matchType}'` : ''
 
-        const result = await executeQuery(`
+        const result = await executeCricketQuery(`
           WITH team_matches AS (
             SELECT team1 as team, winner FROM match_info ${typeFilter}
             UNION ALL
@@ -170,7 +170,7 @@ export function CricketDashboard() {
       try {
         const typeFilter = matchType !== 'All' ? `WHERE match_type = '${matchType}'` : ''
 
-        const result = await executeQuery(`
+        const result = await executeCricketQuery(`
           SELECT
             match_id,
             match_type,
@@ -211,7 +211,7 @@ export function CricketDashboard() {
       setLoading(true)
       setError(null)
       try {
-        const result = await executeQuery(`
+        const result = await executeCricketQuery(`
           SELECT
             EXTRACT(YEAR FROM start_date)::INT as year,
             COUNT(CASE WHEN match_type = 'ODI' THEN 1 END) as odi,

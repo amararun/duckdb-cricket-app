@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { executeQuery } from '../../../services/api'
+import { executeCricketQuery } from '../../../services/api'
 import { Loader2, ChevronUp, ChevronDown, Search, Users, Target, Info, X } from 'lucide-react'
 
 interface MatchupRow {
@@ -65,7 +65,7 @@ export function HeadToHead() {
       setSearchLoading(true)
       try {
         const column = mode === 'batter' ? 'striker' : 'bowler'
-        const result = await executeQuery(`
+        const result = await executeCricketQuery(`
           SELECT DISTINCT ${column} as player
           FROM ball_by_ball
           WHERE LOWER(${column}) LIKE LOWER('%${searchQuery.replace(/'/g, "''")}%')
@@ -161,7 +161,7 @@ export function HeadToHead() {
           `
         }
 
-        const result = await executeQuery(sql)
+        const result = await executeCricketQuery(sql)
 
         const rows: MatchupRow[] = result.rows.map(row => ({
           opponent: row[0] as string,
