@@ -256,13 +256,13 @@ export function CricketDashboard() {
         <div className="mb-6 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Cricket Analytics</h1>
-            <p className="text-base font-medium text-gray-600 mt-1">
+            <p className="text-base font-medium text-gray-700 mt-1">
               Match statistics and team performance
             </p>
           </div>
           <button
             onClick={() => setShowInfo(true)}
-            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+            className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50"
             title="Dashboard info"
           >
             <Info className="h-5 w-5" />
@@ -277,7 +277,7 @@ export function CricketDashboard() {
                 <h2 className="text-xl font-bold text-gray-900">Dashboard - Data Overview</h2>
                 <button
                   onClick={() => setShowInfo(false)}
-                  className="p-1 hover:bg-gray-100 text-gray-600"
+                  className="p-1 hover:bg-gray-100 text-gray-700"
                 >
                   <X className="h-6 w-6" />
                 </button>
@@ -339,7 +339,7 @@ export function CricketDashboard() {
 
                 <div className="mt-4 p-4 border border-gray-200">
                   <h3 className="font-semibold text-gray-900 mb-2">Data Notes</h3>
-                  <ul className="text-base text-gray-600 space-y-1">
+                  <ul className="text-base text-gray-700 space-y-1">
                     <li>• Data covers TEST, ODI, and T20 internationals</li>
                     <li>• Ball-by-ball records: ~4.4 million deliveries</li>
                     <li>• Match records: ~8,700 matches</li>
@@ -421,13 +421,13 @@ export function CricketDashboard() {
             </h2>
             {winRatesLoading ? (
               <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-gray-500" />
+                <Loader2 className="h-6 w-6 animate-spin text-gray-600" />
               </div>
             ) : teamWinRates.length > 0 ? (
               <div className="space-y-2">
                 {teamWinRates.map((team, index) => (
                   <div key={team.team} className="flex items-center gap-3">
-                    <span className="w-5 text-sm font-medium text-gray-500 text-right">
+                    <span className="w-5 text-sm font-medium text-gray-700 text-right">
                       {index + 1}
                     </span>
                     <span className="w-28 text-sm font-medium text-gray-900 truncate">
@@ -443,18 +443,18 @@ export function CricketDashboard() {
                         </span>
                       </div>
                     </div>
-                    <span className="w-16 text-sm font-medium text-gray-500 text-right tabular-nums">
+                    <span className="w-16 text-sm font-medium text-gray-700 text-right tabular-nums">
                       {team.wins}/{team.matches}
                     </span>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-gray-700">
                 No data available
               </div>
             )}
-            <p className="text-xs text-gray-500 mt-4">
+            <p className="text-xs text-gray-600 mt-4">
               Teams with 50+ matches. Shows wins/total matches.
             </p>
           </div>
@@ -466,7 +466,7 @@ export function CricketDashboard() {
             </h2>
             {loading ? (
               <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-gray-500" />
+                <Loader2 className="h-6 w-6 animate-spin text-gray-600" />
               </div>
             ) : yearlyMatches.length > 0 ? (
               <div className="relative">
@@ -503,7 +503,7 @@ export function CricketDashboard() {
                             title={`Test: ${year.test}`}
                           />
                         </div>
-                        <span className="text-xs text-gray-500 mt-2">
+                        <span className="text-xs text-gray-600 mt-2">
                           {year.year.toString().slice(-2)}
                         </span>
                         {/* Tooltip */}
@@ -518,20 +518,20 @@ export function CricketDashboard() {
                 <div className="flex justify-center gap-6 mt-2">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-gray-700" />
-                    <span className="text-sm text-gray-600">Test</span>
+                    <span className="text-sm text-gray-700">Test</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-blue-500" />
-                    <span className="text-sm text-gray-600">ODI</span>
+                    <span className="text-sm text-gray-700">ODI</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-teal-500" />
-                    <span className="text-sm text-gray-600">T20</span>
+                    <span className="text-sm text-gray-700">T20</span>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-gray-700">
                 No data available
               </div>
             )}
@@ -544,7 +544,7 @@ export function CricketDashboard() {
             <h2 className="text-lg font-semibold text-gray-900">
               Recent Matches {matchType !== 'All' && `(${matchType === 'TEST' ? 'Test' : matchType})`}
             </h2>
-            <span className="text-sm font-medium text-gray-500">
+            <span className="text-sm font-medium text-gray-700">
               {recentMatches.length} matches
             </span>
           </div>
@@ -553,11 +553,11 @@ export function CricketDashboard() {
             <table className="w-full">
               <thead className="border-b border-gray-200">
                 <tr>
-                  <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600 uppercase tracking-wide">Date</th>
-                  <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600 uppercase tracking-wide">Type</th>
-                  <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600 uppercase tracking-wide">Match</th>
-                  <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600 uppercase tracking-wide">Result</th>
-                  <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600 uppercase tracking-wide">
+                  <th className="text-left px-4 py-3 text-sm font-semibold text-gray-700 uppercase tracking-wide">Date</th>
+                  <th className="text-left px-4 py-3 text-sm font-semibold text-gray-700 uppercase tracking-wide">Type</th>
+                  <th className="text-left px-4 py-3 text-sm font-semibold text-gray-700 uppercase tracking-wide">Match</th>
+                  <th className="text-left px-4 py-3 text-sm font-semibold text-gray-700 uppercase tracking-wide">Result</th>
+                  <th className="text-left px-4 py-3 text-sm font-semibold text-gray-700 uppercase tracking-wide">
                     <MapPin className="h-4 w-4 inline mr-1" />
                     Venue
                   </th>
@@ -569,7 +569,7 @@ export function CricketDashboard() {
                     key={match.matchId}
                     className="border-b border-gray-100 hover:bg-gray-50"
                   >
-                    <td className="px-4 py-3 text-sm font-medium text-gray-600 tabular-nums">
+                    <td className="px-4 py-3 text-sm font-medium text-gray-700 tabular-nums">
                       {new Date(match.date).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-3 text-sm font-medium text-gray-700">
@@ -581,7 +581,7 @@ export function CricketDashboard() {
                     <td className="px-4 py-3 text-sm font-medium text-green-600">
                       {formatResult(match)}
                     </td>
-                    <td className="px-4 py-3 text-sm font-medium text-gray-500 max-w-xs truncate">
+                    <td className="px-4 py-3 text-sm font-medium text-gray-700 max-w-xs truncate">
                       {match.venue}
                     </td>
                   </tr>
@@ -615,7 +615,7 @@ export function CricketDashboard() {
 
         {/* Data Info */}
         {stats && (
-          <div className="mt-6 text-center text-sm font-medium text-gray-500">
+          <div className="mt-6 text-center text-sm font-medium text-gray-700">
             Data covers {stats.totalMatches.toLocaleString()} matches from {stats.dateRange.from} to {stats.dateRange.to}
           </div>
         )}
@@ -634,8 +634,8 @@ function StatCard({ label, value, subtext }: StatCardProps) {
   return (
     <div className="bg-white border border-gray-200 p-5">
       <p className="text-3xl font-bold text-gray-900 tabular-nums">{value}</p>
-      <p className="text-sm font-medium text-gray-600 mt-1">{label}</p>
-      {subtext && <p className="text-xs text-gray-500 mt-0.5">{subtext}</p>}
+      <p className="text-sm font-medium text-gray-700 mt-1">{label}</p>
+      {subtext && <p className="text-xs text-gray-600 mt-0.5">{subtext}</p>}
     </div>
   )
 }
