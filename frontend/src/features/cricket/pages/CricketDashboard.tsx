@@ -256,7 +256,7 @@ export function CricketDashboard() {
         <div className="mb-6 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Cricket Analytics</h1>
-            <p className="text-base font-medium text-gray-700 mt-1">
+            <p className="text-base font-medium text-gray-900 mt-1">
               Match statistics and team performance
             </p>
           </div>
@@ -427,7 +427,7 @@ export function CricketDashboard() {
               <div className="space-y-2">
                 {teamWinRates.map((team, index) => (
                   <div key={team.team} className="flex items-center gap-3">
-                    <span className="w-5 text-sm font-medium text-gray-700 text-right">
+                    <span className="w-5 text-sm font-medium text-gray-900 text-right">
                       {index + 1}
                     </span>
                     <span className="w-28 text-sm font-medium text-gray-900 truncate">
@@ -443,7 +443,7 @@ export function CricketDashboard() {
                         </span>
                       </div>
                     </div>
-                    <span className="w-16 text-sm font-medium text-gray-700 text-right tabular-nums">
+                    <span className="w-16 text-sm font-medium text-gray-900 text-right tabular-nums">
                       {team.wins}/{team.matches}
                     </span>
                   </div>
@@ -518,15 +518,15 @@ export function CricketDashboard() {
                 <div className="flex justify-center gap-6 mt-2">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-gray-700" />
-                    <span className="text-sm text-gray-700">Test</span>
+                    <span className="text-sm font-medium text-gray-900">Test</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-blue-500" />
-                    <span className="text-sm text-gray-700">ODI</span>
+                    <span className="text-sm font-medium text-gray-900">ODI</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-teal-500" />
-                    <span className="text-sm text-gray-700">T20</span>
+                    <span className="text-sm font-medium text-gray-900">T20</span>
                   </div>
                 </div>
               </div>
@@ -544,7 +544,7 @@ export function CricketDashboard() {
             <h2 className="text-lg font-semibold text-gray-900">
               Recent Matches {matchType !== 'All' && `(${matchType === 'TEST' ? 'Test' : matchType})`}
             </h2>
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-gray-900">
               {recentMatches.length} matches
             </span>
           </div>
@@ -553,11 +553,11 @@ export function CricketDashboard() {
             <table className="w-full">
               <thead className="border-b border-gray-200">
                 <tr>
-                  <th className="text-left px-4 py-3 text-sm font-semibold text-gray-700 uppercase tracking-wide">Date</th>
-                  <th className="text-left px-4 py-3 text-sm font-semibold text-gray-700 uppercase tracking-wide">Type</th>
-                  <th className="text-left px-4 py-3 text-sm font-semibold text-gray-700 uppercase tracking-wide">Match</th>
-                  <th className="text-left px-4 py-3 text-sm font-semibold text-gray-700 uppercase tracking-wide">Result</th>
-                  <th className="text-left px-4 py-3 text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                  <th className="text-left px-4 py-3 text-sm font-semibold text-gray-900 uppercase tracking-wide">Date</th>
+                  <th className="text-left px-4 py-3 text-sm font-semibold text-gray-900 uppercase tracking-wide">Type</th>
+                  <th className="text-left px-4 py-3 text-sm font-semibold text-gray-900 uppercase tracking-wide">Match</th>
+                  <th className="text-left px-4 py-3 text-sm font-semibold text-gray-900 uppercase tracking-wide">Result</th>
+                  <th className="text-left px-4 py-3 text-sm font-semibold text-gray-900 uppercase tracking-wide">
                     <MapPin className="h-4 w-4 inline mr-1" />
                     Venue
                   </th>
@@ -569,10 +569,10 @@ export function CricketDashboard() {
                     key={match.matchId}
                     className="border-b border-gray-100 hover:bg-gray-50"
                   >
-                    <td className="px-4 py-3 text-sm font-medium text-gray-700 tabular-nums">
+                    <td className="px-4 py-3 text-sm font-medium text-gray-900 tabular-nums">
                       {new Date(match.date).toLocaleDateString()}
                     </td>
-                    <td className="px-4 py-3 text-sm font-medium text-gray-700">
+                    <td className="px-4 py-3 text-sm font-medium text-gray-900">
                       {match.matchType === 'TEST' ? 'Test' : match.matchType}
                     </td>
                     <td className="px-4 py-3 text-sm font-medium text-gray-900">
@@ -581,7 +581,7 @@ export function CricketDashboard() {
                     <td className="px-4 py-3 text-sm font-medium text-green-600">
                       {formatResult(match)}
                     </td>
-                    <td className="px-4 py-3 text-sm font-medium text-gray-700 max-w-xs truncate">
+                    <td className="px-4 py-3 text-sm font-medium text-gray-900 max-w-xs truncate">
                       {match.venue}
                     </td>
                   </tr>
@@ -615,7 +615,7 @@ export function CricketDashboard() {
 
         {/* Data Info */}
         {stats && (
-          <div className="mt-6 text-center text-sm font-medium text-gray-700">
+          <div className="mt-6 text-center text-sm font-medium text-gray-900">
             Data covers {stats.totalMatches.toLocaleString()} matches from {stats.dateRange.from} to {stats.dateRange.to}
           </div>
         )}
@@ -634,7 +634,7 @@ function StatCard({ label, value, subtext }: StatCardProps) {
   return (
     <div className="bg-white border border-gray-200 p-5">
       <p className="text-3xl font-bold text-gray-900 tabular-nums">{value}</p>
-      <p className="text-sm font-medium text-gray-700 mt-1">{label}</p>
+      <p className="text-sm font-medium text-gray-900 mt-1">{label}</p>
       {subtext && <p className="text-xs text-gray-600 mt-0.5">{subtext}</p>}
     </div>
   )
