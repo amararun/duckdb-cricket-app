@@ -1,14 +1,9 @@
 import { useState, useEffect } from 'react'
 import {
-  Trophy,
-  Users,
-  Calendar,
   MapPin,
   Loader2,
   ChevronDown,
   ChevronUp,
-  TrendingUp,
-  Shield,
   Info,
   X
 } from 'lucide-react'
@@ -255,19 +250,19 @@ export function CricketDashboard() {
   }
 
   return (
-    <div className="flex-1 p-6">
+    <div className="flex-1 p-6 bg-white">
       <div className="max-w-7xl mx-auto">
         {/* Page Title with Info Button */}
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-slate-800">Cricket Analytics Dashboard</h1>
-            <p className="text-base text-slate-600 mt-1">
-              Match statistics and team performance analytics
+            <h1 className="text-2xl font-bold text-gray-900">Cricket Analytics</h1>
+            <p className="text-base text-gray-600 mt-1">
+              Match statistics and team performance
             </p>
           </div>
           <button
             onClick={() => setShowInfo(true)}
-            className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg"
+            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-50"
             title="Dashboard info"
           >
             <Info className="h-5 w-5" />
@@ -277,85 +272,85 @@ export function CricketDashboard() {
         {/* Info Modal */}
         {showInfo && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
-              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-indigo-50">
-                <h2 className="text-xl font-bold text-slate-800">Dashboard - Data Overview</h2>
+            <div className="bg-white shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+                <h2 className="text-xl font-bold text-gray-900">Dashboard - Data Overview</h2>
                 <button
                   onClick={() => setShowInfo(false)}
-                  className="p-1 rounded hover:bg-indigo-100 text-slate-600 transition-colors"
+                  className="p-1 hover:bg-gray-100 text-gray-600"
                 >
                   <X className="h-6 w-6" />
                 </button>
               </div>
               <div className="px-6 py-4 overflow-y-auto max-h-[60vh]">
-                <h3 className="font-bold text-slate-800 mb-3">Data Source</h3>
-                <p className="text-base text-slate-700 mb-4">
+                <h3 className="font-semibold text-gray-900 mb-3">Data Source</h3>
+                <p className="text-base text-gray-700 mb-4">
                   This dashboard displays international cricket match data including Test, ODI, and T20 formats.
                   Data is sourced from ball-by-ball records covering matches from 2002 to present.
                 </p>
 
-                <h3 className="font-bold text-slate-800 mb-3">Stats Cards</h3>
+                <h3 className="font-semibold text-gray-900 mb-3">Stats Cards</h3>
                 <table className="w-full mb-4">
-                  <tbody className="text-base text-slate-700">
-                    <tr className="border-b border-slate-100">
-                      <td className="py-2 font-semibold">Total Matches</td>
+                  <tbody className="text-base text-gray-700">
+                    <tr className="border-b border-gray-100">
+                      <td className="py-2 font-medium">Total Matches</td>
                       <td className="py-2">All matches in the database across all formats</td>
                     </tr>
-                    <tr className="border-b border-slate-100">
-                      <td className="py-2 font-semibold">Test/ODI/T20</td>
+                    <tr className="border-b border-gray-100">
+                      <td className="py-2 font-medium">Test/ODI/T20</td>
                       <td className="py-2">Match counts broken down by format</td>
                     </tr>
-                    <tr className="border-b border-slate-100">
-                      <td className="py-2 font-semibold">Teams</td>
+                    <tr className="border-b border-gray-100">
+                      <td className="py-2 font-medium">Teams</td>
                       <td className="py-2">Unique teams (includes Associate Nations)</td>
                     </tr>
                   </tbody>
                 </table>
 
-                <h3 className="font-bold text-slate-800 mb-3">Team Win Rates</h3>
+                <h3 className="font-semibold text-gray-900 mb-3">Team Win Rates</h3>
                 <table className="w-full mb-4">
-                  <tbody className="text-base text-slate-700">
-                    <tr className="border-b border-slate-100">
-                      <td className="py-2 font-semibold">Win Rate %</td>
+                  <tbody className="text-base text-gray-700">
+                    <tr className="border-b border-gray-100">
+                      <td className="py-2 font-medium">Win Rate %</td>
                       <td className="py-2">(Wins / Total Matches) × 100</td>
                     </tr>
-                    <tr className="border-b border-slate-100">
-                      <td className="py-2 font-semibold">Filter</td>
+                    <tr className="border-b border-gray-100">
+                      <td className="py-2 font-medium">Filter</td>
                       <td className="py-2">Only teams with 50+ matches shown</td>
                     </tr>
-                    <tr className="border-b border-slate-100">
-                      <td className="py-2 font-semibold">Note</td>
+                    <tr className="border-b border-gray-100">
+                      <td className="py-2 font-medium">Note</td>
                       <td className="py-2">Win rate depends on opponent strength. Associate nations often have high rates against weaker opponents.</td>
                     </tr>
                   </tbody>
                 </table>
 
-                <h3 className="font-bold text-slate-800 mb-3">Matches by Year</h3>
-                <p className="text-base text-slate-700 mb-4">
+                <h3 className="font-semibold text-gray-900 mb-3">Matches by Year</h3>
+                <p className="text-base text-gray-700 mb-4">
                   Stacked bar chart showing the number of matches per year, broken down by format (Test, ODI, T20).
                   Shows the last 15 years of data.
                 </p>
 
-                <h3 className="font-bold text-slate-800 mb-3">Recent Matches</h3>
-                <p className="text-base text-slate-700 mb-4">
-                  Lists the most recent matches with result details. Winner is determined from the <code className="bg-slate-100 px-1 rounded">match_info</code> table.
+                <h3 className="font-semibold text-gray-900 mb-3">Recent Matches</h3>
+                <p className="text-base text-gray-700 mb-4">
+                  Lists the most recent matches with result details. Winner is determined from the <code className="bg-gray-100 px-1">match_info</code> table.
                   Results show margin (runs or wickets).
                 </p>
 
-                <div className="mt-4 p-4 bg-slate-50 rounded-lg">
-                  <h3 className="font-bold text-slate-800 mb-2">Data Notes</h3>
-                  <ul className="text-base text-slate-600 space-y-1">
-                    <li>Data covers TEST, ODI, and T20 internationals</li>
-                    <li>Ball-by-ball records: ~4.4 million deliveries</li>
-                    <li>Match records: ~8,700 matches</li>
-                    <li>Use the filter buttons to view specific formats</li>
+                <div className="mt-4 p-4 border border-gray-200">
+                  <h3 className="font-semibold text-gray-900 mb-2">Data Notes</h3>
+                  <ul className="text-base text-gray-600 space-y-1">
+                    <li>• Data covers TEST, ODI, and T20 internationals</li>
+                    <li>• Ball-by-ball records: ~4.4 million deliveries</li>
+                    <li>• Match records: ~8,700 matches</li>
+                    <li>• Use the filter buttons to view specific formats</li>
                   </ul>
                 </div>
               </div>
-              <div className="px-6 py-4 border-t border-slate-200 bg-slate-50">
+              <div className="px-6 py-4 border-t border-gray-200">
                 <button
                   onClick={() => setShowInfo(false)}
-                  className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors"
+                  className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium"
                 >
                   Close
                 </button>
@@ -366,16 +361,16 @@ export function CricketDashboard() {
 
         {/* Filter Bar */}
         <div className="mb-6 flex items-center gap-4">
-          <span className="text-sm font-medium text-slate-700">Match Type:</span>
-          <div className="flex gap-1 bg-slate-100 p-1 rounded-lg">
+          <span className="text-sm font-medium text-gray-700">Match Type:</span>
+          <div className="flex border border-gray-200">
             {(['All', 'ODI', 'T20', 'TEST'] as const).map((type) => (
               <button
                 key={type}
                 onClick={() => setMatchType(type)}
-                className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                className={`px-4 py-1.5 text-sm font-medium border-r border-gray-200 last:border-r-0 ${
                   matchType === type
-                    ? 'bg-white text-indigo-700 shadow-sm'
-                    : 'text-slate-600 hover:text-slate-800'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-white text-gray-700 hover:bg-gray-50'
                 }`}
               >
                 {type === 'TEST' ? 'Test' : type}
@@ -386,105 +381,92 @@ export function CricketDashboard() {
 
         {/* Error Display */}
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+          <div className="mb-6 p-4 border border-red-200 text-red-600">
             {error}
           </div>
         )}
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
           <StatCard
-            icon={<Calendar className="h-6 w-6" />}
             label="Total Matches"
             value={stats?.totalMatches.toLocaleString() ?? '--'}
             subtext={stats ? `${stats.dateRange.from.split('-')[0]} - ${stats.dateRange.to.split('-')[0]}` : ''}
-            color="indigo"
           />
           <StatCard
-            icon={<Shield className="h-6 w-6" />}
             label="Test Matches"
             value={stats?.testMatches.toLocaleString() ?? '--'}
-            subtext="Test Cricket"
-            color="red"
           />
           <StatCard
-            icon={<Trophy className="h-6 w-6" />}
             label="ODI Matches"
             value={stats?.odiMatches.toLocaleString() ?? '--'}
-            subtext="One Day Internationals"
-            color="emerald"
           />
           <StatCard
-            icon={<TrendingUp className="h-6 w-6" />}
             label="T20 Matches"
             value={stats?.t20Matches.toLocaleString() ?? '--'}
-            subtext="Twenty20 Internationals"
-            color="amber"
           />
           <StatCard
-            icon={<Users className="h-6 w-6" />}
             label="Teams"
             value={stats?.uniqueTeams.toLocaleString() ?? '--'}
             subtext={`${stats?.uniqueVenues.toLocaleString() ?? '--'} venues`}
-            color="rose"
           />
         </div>
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Team Win Rates Chart */}
-          <div className="bg-white border border-slate-200 rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-slate-800 mb-4">
+          <div className="bg-white border border-gray-200 p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
               Team Win Rates {matchType !== 'All' && `(${matchType === 'TEST' ? 'Test' : matchType})`}
             </h2>
             {winRatesLoading ? (
               <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-indigo-600" />
+                <Loader2 className="h-6 w-6 animate-spin text-gray-500" />
               </div>
             ) : teamWinRates.length > 0 ? (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {teamWinRates.map((team, index) => (
                   <div key={team.team} className="flex items-center gap-3">
-                    <span className="w-6 text-sm font-medium text-slate-500 text-right">
+                    <span className="w-5 text-sm font-medium text-gray-500 text-right">
                       {index + 1}
                     </span>
-                    <span className="w-32 text-sm font-medium text-slate-800 truncate">
+                    <span className="w-28 text-sm font-medium text-gray-900 truncate">
                       {team.team}
                     </span>
-                    <div className="flex-1 bg-slate-100 rounded-full h-6 overflow-hidden">
+                    <div className="flex-1 bg-gray-100 h-5 overflow-hidden">
                       <div
-                        className="h-full bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full flex items-center justify-end pr-2 transition-all duration-500"
+                        className="h-full bg-blue-600 flex items-center justify-end pr-2"
                         style={{ width: `${(team.winRate / maxWinRate) * 100}%` }}
                       >
-                        <span className="text-xs font-bold text-white">
+                        <span className="text-xs font-semibold text-white">
                           {team.winRate}%
                         </span>
                       </div>
                     </div>
-                    <span className="w-16 text-xs text-slate-500 text-right">
+                    <span className="w-16 text-sm text-gray-500 text-right tabular-nums">
                       {team.wins}/{team.matches}
                     </span>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8 text-slate-500">
+              <div className="text-center py-8 text-gray-500">
                 No data available
               </div>
             )}
-            <p className="text-xs text-slate-500 mt-4">
+            <p className="text-xs text-gray-500 mt-4">
               Teams with 50+ matches. Shows wins/total matches.
             </p>
           </div>
 
           {/* Matches by Year Chart */}
-          <div className="bg-white border border-slate-200 rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-slate-800 mb-4">
+          <div className="bg-white border border-gray-200 p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
               Matches by Year
             </h2>
             {loading ? (
               <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-indigo-600" />
+                <Loader2 className="h-6 w-6 animate-spin text-gray-500" />
               </div>
             ) : yearlyMatches.length > 0 ? (
               <div className="relative">
@@ -502,30 +484,30 @@ export function CricketDashboard() {
                         className="flex-1 flex flex-col items-center group"
                       >
                         <div className="w-full flex flex-col justify-end h-52">
-                          {/* T20 bar */}
+                          {/* T20 bar - teal */}
                           <div
-                            className="w-full bg-amber-400 rounded-t transition-all hover:bg-amber-500"
+                            className="w-full bg-teal-500"
                             style={{ height: `${t20Height}%` }}
                             title={`T20: ${year.t20}`}
                           />
-                          {/* ODI bar */}
+                          {/* ODI bar - blue */}
                           <div
-                            className="w-full bg-emerald-500 transition-all hover:bg-emerald-600"
+                            className="w-full bg-blue-500"
                             style={{ height: `${odiHeight}%` }}
                             title={`ODI: ${year.odi}`}
                           />
-                          {/* Test bar */}
+                          {/* Test bar - gray */}
                           <div
-                            className="w-full bg-red-500 transition-all hover:bg-red-600"
+                            className="w-full bg-gray-700"
                             style={{ height: `${testHeight}%` }}
                             title={`Test: ${year.test}`}
                           />
                         </div>
-                        <span className="text-xs text-slate-500 mt-1 transform -rotate-45 origin-top-left">
+                        <span className="text-xs text-gray-500 mt-2">
                           {year.year.toString().slice(-2)}
                         </span>
                         {/* Tooltip */}
-                        <div className="absolute bottom-full mb-2 hidden group-hover:block bg-slate-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-10">
+                        <div className="absolute bottom-full mb-2 hidden group-hover:block bg-gray-900 text-white text-xs px-2 py-1 whitespace-nowrap z-10">
                           {year.year}: {year.total} ({year.test} Test, {year.odi} ODI, {year.t20} T20)
                         </div>
                       </div>
@@ -535,21 +517,21 @@ export function CricketDashboard() {
                 {/* Legend */}
                 <div className="flex justify-center gap-6 mt-2">
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-red-500 rounded" />
-                    <span className="text-xs text-slate-600">Test</span>
+                    <div className="w-3 h-3 bg-gray-700" />
+                    <span className="text-sm text-gray-600">Test</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-emerald-500 rounded" />
-                    <span className="text-xs text-slate-600">ODI</span>
+                    <div className="w-3 h-3 bg-blue-500" />
+                    <span className="text-sm text-gray-600">ODI</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-amber-400 rounded" />
-                    <span className="text-xs text-slate-600">T20</span>
+                    <div className="w-3 h-3 bg-teal-500" />
+                    <span className="text-sm text-gray-600">T20</span>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="text-center py-8 text-slate-500">
+              <div className="text-center py-8 text-gray-500">
                 No data available
               </div>
             )}
@@ -557,59 +539,49 @@ export function CricketDashboard() {
         </div>
 
         {/* Recent Matches Table */}
-        <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-slate-800">
+        <div className="bg-white border border-gray-200 overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-900">
               Recent Matches {matchType !== 'All' && `(${matchType === 'TEST' ? 'Test' : matchType})`}
             </h2>
-            <span className="text-sm text-slate-500">
+            <span className="text-sm text-gray-500">
               {recentMatches.length} matches
             </span>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-slate-50 border-b border-slate-200">
+              <thead className="border-b border-gray-200">
                 <tr>
-                  <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">Date</th>
-                  <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">Type</th>
-                  <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">Match</th>
-                  <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">Result</th>
-                  <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">
+                  <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600 uppercase tracking-wide">Date</th>
+                  <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600 uppercase tracking-wide">Type</th>
+                  <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600 uppercase tracking-wide">Match</th>
+                  <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600 uppercase tracking-wide">Result</th>
+                  <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600 uppercase tracking-wide">
                     <MapPin className="h-4 w-4 inline mr-1" />
                     Venue
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {displayedMatches.map((match, index) => (
+                {displayedMatches.map((match) => (
                   <tr
                     key={match.matchId}
-                    className={`border-b border-slate-100 hover:bg-slate-50 ${
-                      index % 2 === 0 ? 'bg-white' : 'bg-slate-25'
-                    }`}
+                    className="border-b border-gray-100 hover:bg-gray-50"
                   >
-                    <td className="px-4 py-3 text-sm text-slate-600">
+                    <td className="px-4 py-3 text-sm text-gray-600 tabular-nums">
                       {new Date(match.date).toLocaleDateString()}
                     </td>
-                    <td className="px-4 py-3">
-                      <span className={`text-xs font-semibold px-2 py-1 rounded ${
-                        match.matchType === 'TEST'
-                          ? 'bg-red-100 text-red-700'
-                          : match.matchType === 'ODI'
-                          ? 'bg-emerald-100 text-emerald-700'
-                          : 'bg-amber-100 text-amber-700'
-                      }`}>
-                        {match.matchType === 'TEST' ? 'Test' : match.matchType}
-                      </span>
+                    <td className="px-4 py-3 text-sm font-medium text-gray-700">
+                      {match.matchType === 'TEST' ? 'Test' : match.matchType}
                     </td>
-                    <td className="px-4 py-3 text-sm font-medium text-slate-800">
+                    <td className="px-4 py-3 text-sm font-medium text-gray-900">
                       {match.team1} vs {match.team2}
                     </td>
-                    <td className="px-4 py-3 text-sm font-medium text-emerald-700">
+                    <td className="px-4 py-3 text-sm font-medium text-green-600">
                       {formatResult(match)}
                     </td>
-                    <td className="px-4 py-3 text-sm text-slate-500 max-w-xs truncate">
+                    <td className="px-4 py-3 text-sm text-gray-500 max-w-xs truncate">
                       {match.venue}
                     </td>
                   </tr>
@@ -620,10 +592,10 @@ export function CricketDashboard() {
 
           {/* Show More/Less Button */}
           {recentMatches.length > 10 && (
-            <div className="px-6 py-3 border-t border-slate-200 bg-slate-50">
+            <div className="px-6 py-3 border-t border-gray-200">
               <button
                 onClick={() => setShowAllMatches(!showAllMatches)}
-                className="flex items-center gap-2 text-sm font-medium text-indigo-600 hover:text-indigo-700"
+                className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700"
               >
                 {showAllMatches ? (
                   <>
@@ -643,7 +615,7 @@ export function CricketDashboard() {
 
         {/* Data Info */}
         {stats && (
-          <div className="mt-6 text-center text-sm text-slate-500">
+          <div className="mt-6 text-center text-sm text-gray-500">
             Data covers {stats.totalMatches.toLocaleString()} matches from {stats.dateRange.from} to {stats.dateRange.to}
           </div>
         )}
@@ -653,32 +625,17 @@ export function CricketDashboard() {
 }
 
 interface StatCardProps {
-  icon: React.ReactNode
   label: string
   value: string
   subtext?: string
-  color: 'indigo' | 'emerald' | 'amber' | 'rose' | 'red'
 }
 
-function StatCard({ icon, label, value, subtext, color }: StatCardProps) {
-  const colorClasses = {
-    indigo: 'bg-indigo-50 text-indigo-600 border-indigo-200',
-    emerald: 'bg-emerald-50 text-emerald-600 border-emerald-200',
-    amber: 'bg-amber-50 text-amber-600 border-amber-200',
-    rose: 'bg-rose-50 text-rose-600 border-rose-200',
-    red: 'bg-red-50 text-red-600 border-red-200',
-  }
-
+function StatCard({ label, value, subtext }: StatCardProps) {
   return (
-    <div className={`rounded-lg border p-4 ${colorClasses[color]}`}>
-      <div className="flex items-center gap-3">
-        {icon}
-        <div>
-          <p className="text-base font-medium text-slate-700">{label}</p>
-          <p className="text-2xl font-bold">{value}</p>
-          {subtext && <p className="text-xs text-slate-500 mt-0.5">{subtext}</p>}
-        </div>
-      </div>
+    <div className="bg-white border border-gray-200 p-5">
+      <p className="text-3xl font-bold text-gray-900 tabular-nums">{value}</p>
+      <p className="text-sm font-medium text-gray-600 mt-1">{label}</p>
+      {subtext && <p className="text-xs text-gray-500 mt-0.5">{subtext}</p>}
     </div>
   )
 }
