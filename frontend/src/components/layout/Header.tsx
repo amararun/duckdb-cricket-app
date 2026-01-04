@@ -39,32 +39,32 @@ export function Header() {
           to="/"
           className="flex items-center gap-2 text-gray-900 hover:text-gray-600 transition-colors"
         >
-          <Home className="h-5 w-5" />
+          <Home className="h-6 w-6" />
         </Link>
 
         {/* Divider */}
-        <div className="h-5 w-px bg-gray-200" />
+        <div className="h-6 w-px bg-gray-200" />
 
         {/* Section Logo */}
         <div className="flex items-center gap-2">
           {isCricket ? (
             <>
-              <Trophy className="h-5 w-5 text-gray-900" />
-              <span className="text-lg font-bold text-gray-900">Cricket</span>
+              <Trophy className="h-6 w-6 text-gray-900" />
+              <span className="text-xl font-bold text-gray-900">Cricket</span>
             </>
           ) : isImdb ? (
             <>
-              <Film className="h-5 w-5 text-gray-900" />
-              <span className="text-lg font-bold text-gray-900">IMDb</span>
+              <Film className="h-6 w-6 text-gray-900" />
+              <span className="text-xl font-bold text-gray-900">IMDb</span>
             </>
           ) : (
-            <span className="text-lg font-bold text-gray-900">DuckDB Dashboards</span>
+            <span className="text-xl font-bold text-gray-900">DuckDB Dashboards</span>
           )}
         </div>
 
         {/* Divider */}
         {navLinks.length > 0 && (
-          <div className="hidden md:block h-5 w-px bg-gray-200" />
+          <div className="hidden md:block h-6 w-px bg-gray-200" />
         )}
 
         {/* Navigation */}
@@ -73,13 +73,13 @@ export function Header() {
             <Link
               key={link.path}
               to={link.path}
-              className={`px-3 py-1.5 text-sm font-medium transition-colors flex items-center gap-1.5 ${
+              className={`px-3 py-2 text-base font-medium transition-colors flex items-center gap-1.5 ${
                 isActive(link.path)
                   ? 'text-blue-600 bg-blue-50'
                   : 'text-gray-900 hover:bg-gray-50'
               }`}
             >
-              {link.icon && <link.icon className="h-4 w-4" />}
+              {link.icon && <link.icon className="h-5 w-5" />}
               {link.label}
             </Link>
           ))}
@@ -92,24 +92,24 @@ export function Header() {
         {isCricket && (
           <Link
             to="/imdb"
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-900 hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50 transition-colors"
           >
-            <Film className="h-4 w-4" />
+            <Film className="h-5 w-5" />
             <span className="hidden sm:inline">IMDb</span>
           </Link>
         )}
         {isImdb && (
           <Link
             to="/cricket"
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-900 hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50 transition-colors"
           >
-            <Trophy className="h-4 w-4" />
+            <Trophy className="h-5 w-5" />
             <span className="hidden sm:inline">Cricket</span>
           </Link>
         )}
 
         {/* TIGZIG branding */}
-        <span className="text-xs font-medium text-gray-900">TIGZIG</span>
+        <span className="text-sm font-medium text-gray-900">TIGZIG</span>
       </div>
     </div>
   )
