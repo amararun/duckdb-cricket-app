@@ -256,7 +256,7 @@ export function CricketDashboard() {
         <div className="mb-6 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Cricket Analytics</h1>
-            <p className="text-base text-gray-600 mt-1">
+            <p className="text-base font-medium text-gray-600 mt-1">
               Match statistics and team performance
             </p>
           </div>
@@ -443,7 +443,7 @@ export function CricketDashboard() {
                         </span>
                       </div>
                     </div>
-                    <span className="w-16 text-sm text-gray-500 text-right tabular-nums">
+                    <span className="w-16 text-sm font-medium text-gray-500 text-right tabular-nums">
                       {team.wins}/{team.matches}
                     </span>
                   </div>
@@ -544,7 +544,7 @@ export function CricketDashboard() {
             <h2 className="text-lg font-semibold text-gray-900">
               Recent Matches {matchType !== 'All' && `(${matchType === 'TEST' ? 'Test' : matchType})`}
             </h2>
-            <span className="text-sm text-gray-500">
+            <span className="text-sm font-medium text-gray-500">
               {recentMatches.length} matches
             </span>
           </div>
@@ -569,7 +569,7 @@ export function CricketDashboard() {
                     key={match.matchId}
                     className="border-b border-gray-100 hover:bg-gray-50"
                   >
-                    <td className="px-4 py-3 text-sm text-gray-600 tabular-nums">
+                    <td className="px-4 py-3 text-sm font-medium text-gray-600 tabular-nums">
                       {new Date(match.date).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-3 text-sm font-medium text-gray-700">
@@ -581,7 +581,7 @@ export function CricketDashboard() {
                     <td className="px-4 py-3 text-sm font-medium text-green-600">
                       {formatResult(match)}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-500 max-w-xs truncate">
+                    <td className="px-4 py-3 text-sm font-medium text-gray-500 max-w-xs truncate">
                       {match.venue}
                     </td>
                   </tr>
@@ -615,7 +615,7 @@ export function CricketDashboard() {
 
         {/* Data Info */}
         {stats && (
-          <div className="mt-6 text-center text-sm text-gray-500">
+          <div className="mt-6 text-center text-sm font-medium text-gray-500">
             Data covers {stats.totalMatches.toLocaleString()} matches from {stats.dateRange.from} to {stats.dateRange.to}
           </div>
         )}
