@@ -37,7 +37,7 @@ export function Header() {
         {/* Home Link */}
         <Link
           to="/"
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+          className="flex items-center gap-2 text-gray-900 hover:text-gray-600 transition-colors"
         >
           <Home className="h-5 w-5" />
         </Link>
@@ -76,7 +76,7 @@ export function Header() {
               className={`px-3 py-1.5 text-sm font-medium transition-colors flex items-center gap-1.5 ${
                 isActive(link.path)
                   ? 'text-blue-600 bg-blue-50'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  : 'text-gray-900 hover:bg-gray-50'
               }`}
             >
               {link.icon && <link.icon className="h-4 w-4" />}
@@ -92,7 +92,7 @@ export function Header() {
         {isCricket && (
           <Link
             to="/imdb"
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-900 hover:bg-gray-50 transition-colors"
           >
             <Film className="h-4 w-4" />
             <span className="hidden sm:inline">IMDb</span>
@@ -101,7 +101,7 @@ export function Header() {
         {isImdb && (
           <Link
             to="/cricket"
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-900 hover:bg-gray-50 transition-colors"
           >
             <Trophy className="h-4 w-4" />
             <span className="hidden sm:inline">Cricket</span>
@@ -109,7 +109,7 @@ export function Header() {
         )}
 
         {/* TIGZIG branding */}
-        <span className="text-xs font-medium text-gray-500">TIGZIG</span>
+        <span className="text-xs font-medium text-gray-900">TIGZIG</span>
       </div>
     </div>
   )
