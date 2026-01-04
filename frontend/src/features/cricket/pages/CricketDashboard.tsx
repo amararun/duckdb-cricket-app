@@ -578,7 +578,7 @@ export function CricketDashboard() {
                     <td className="px-4 py-3 text-sm font-medium text-gray-900">
                       {match.team1} vs {match.team2}
                     </td>
-                    <td className="px-4 py-3 text-sm font-medium text-green-600">
+                    <td className="px-4 py-3 text-sm font-semibold text-green-700">
                       {formatResult(match)}
                     </td>
                     <td className="px-4 py-3 text-sm font-medium text-gray-900 max-w-xs truncate">
